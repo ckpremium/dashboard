@@ -1,819 +1,2478 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CK Printing — Live Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-<style>
-:root {
-  --bg:#f8f7f4; --surface:#fff; --surface2:#f2f0ec;
-  --border:rgba(0,0,0,.10); --border2:rgba(0,0,0,.18);
-  --text:#1a1a18; --text2:#6b6a65; --text3:#9e9d97;
-  --green:#1a8c68; --green-bg:#e8f5ef; --green-text:#0f5c44;
-  --amber:#a06010; --amber-bg:#fdf2e0; --amber-text:#7a4800;
-  --red:#c43030; --red-bg:#fdeaea; --red-text:#8c1e1e;
-  --blue:#2870c8; --blue-bg:#e8f0fc; --blue-text:#1a4d9e;
-  --radius:10px;
-}
-@media(prefers-color-scheme:dark){
-  :root{
-    --bg:#16161a; --surface:#1e1e24; --surface2:#26262e;
-    --border:rgba(255,255,255,.10); --border2:rgba(255,255,255,.18);
-    --text:#e8e8e2; --text2:#9a9994; --text3:#5e5e5a;
-    --green:#2db87e; --green-bg:#0d2e20; --green-text:#5dd4a0;
-    --amber:#d4880a; --amber-bg:#2e1e00; --amber-text:#f5b84a;
-    --red:#e04444; --red-bg:#2e0e0e; --red-text:#f07070;
-    --blue:#5090e8; --blue-bg:#0e1e38; --blue-text:#80b0f8;
-  }
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
-.wrapper{max-width:1100px;margin:0 auto;padding:0 24px 60px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CK Printing — Investment Decision Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <style>
+    :root {
+      --bg: #f8f7f4;
+      --surface: #ffffff;
+      --surface2: #f2f0ec;
+      --border: rgba(0, 0, 0, 0.10);
+      --border2: rgba(0, 0, 0, 0.18);
+      --text: #1a1a18;
+      --text2: #6b6a65;
+      --text3: #9e9d97;
+      --green: #1a8c68;
+      --green-bg: #e8f5ef;
+      --green-text: #0f5c44;
+      --amber: #a06010;
+      --amber-bg: #fdf2e0;
+      --amber-text: #7a4800;
+      --red: #c43030;
+      --red-bg: #fdeaea;
+      --red-text: #8c1e1e;
+      --blue: #2870c8;
+      --blue-bg: #e8f0fc;
+      --blue-text: #1a4d9e;
+      --purple: #6655c8;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
 
-/* Loading overlay */
-#loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999;transition:opacity .4s}
-#loading-overlay.hidden{opacity:0;pointer-events:none}
-.spinner{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:14px;color:var(--text2)}
-.loading-sub{font-size:12px;color:var(--text3)}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #16161a;
+        --surface: #1e1e24;
+        --surface2: #26262e;
+        --border: rgba(255, 255, 255, 0.10);
+        --border2: rgba(255, 255, 255, 0.18);
+        --text: #e8e8e2;
+        --text2: #9a9994;
+        --text3: #5e5e5a;
+        --green: #2db87e;
+        --green-bg: #0d2e20;
+        --green-text: #5dd4a0;
+        --amber: #d4880a;
+        --amber-bg: #2e1e00;
+        --amber-text: #f5b84a;
+        --red: #e04444;
+        --red-bg: #2e0e0e;
+        --red-text: #f07070;
+        --blue: #5090e8;
+        --blue-bg: #0e1e38;
+        --blue-text: #80b0f8;
+        --purple: #9088e8;
+      }
+    }
 
-/* Error banner */
-#error-banner{display:none;background:var(--red-bg);border:1.5px solid var(--red);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:13px;color:var(--red-text)}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-/* Live badge */
-.live-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green-bg);color:var(--green-text);font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
 
-.hdr{padding:28px 0 20px;border-bottom:1px solid var(--border);margin-bottom:20px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.hdr h1{font-size:22px;font-weight:600}
-.hdr .subtitle{font-size:12px;color:var(--text2);margin-top:4px}
-.hdr .eyebrow{font-size:11px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+    /* Layout */
+    .wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+    }
 
-.filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px}
-.filter-label{font-size:12px;color:var(--text2);font-weight:500;white-space:nowrap}
-.filter-bar input[type=date]{font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);height:32px}
-.sep{color:var(--text3);font-size:12px}
-.quick-btns{display:flex;gap:6px;flex-wrap:wrap}
-.qb{padding:4px 11px;border:1px solid var(--border2);border-radius:20px;background:var(--surface2);font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s}
-.qb:hover,.qb.active{background:var(--blue-bg);color:var(--blue-text);border-color:var(--blue)}
-.filter-toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer}
-.filter-summary{font-size:11px;color:var(--text3);margin-left:auto}
+    /* Header */
+    .hdr {
+      padding: 28px 0 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
 
-.tab-row{display:flex;gap:4px;margin-bottom:20px;background:var(--surface2);border-radius:var(--radius);padding:4px;width:fit-content;flex-wrap:wrap}
-.tab-btn{padding:7px 16px;border:none;border-radius:7px;background:transparent;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s}
-.tab-btn.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.1);font-weight:500}
+    .hdr-left .eyebrow {
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
 
-.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
-.mc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
-.mc-label{font-size:11px;color:var(--text2);margin-bottom:5px}
-.mc-val{font-size:22px;font-weight:600}
-.mc-sub{font-size:11px;color:var(--text3);margin-top:3px}
-.c-green{color:var(--green)}.c-amber{color:var(--amber)}.c-red{color:var(--red)}.c-blue{color:var(--blue)}
+    .hdr-left h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+    }
 
-.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:16px}
-.section-title{font-size:13px;font-weight:600;color:var(--text);margin:0 0 10px}
-.legend-row{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px;font-size:12px;color:var(--text2)}
-.ld{width:10px;height:10px;border-radius:2px;display:inline-block}
-.chart-wrap{position:relative;width:100%}
-.chart-caption{margin-top:10px;padding:10px 12px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--border2);font-size:12px;color:var(--text2);line-height:1.65}
+    .hdr-left .subtitle {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 4px;
+    }
 
-.verdict-box{border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px}
-.verdict-green{background:var(--green-bg);border:1.5px solid var(--green)}
-.verdict-amber{background:var(--amber-bg);border:1.5px solid var(--amber)}
-.verdict-icon{font-size:28px;line-height:1.2;flex-shrink:0}
-.verdict-title{font-size:15px;font-weight:600;margin-bottom:4px}
-.verdict-body{font-size:13px;color:var(--text2);line-height:1.6}
+    .hdr-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: var(--text2);
+    }
 
-.gauge-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px}
-.gauge-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;text-align:center}
-.gauge-bar-wrap{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:6px 0 4px}
-.gauge-bar{height:100%;border-radius:3px}
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+    }
 
-.signal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:20px}
-.signal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
-.signal-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:500;margin-bottom:8px}
-.pill-green{background:var(--green-bg);color:var(--green-text)}
-.pill-amber{background:var(--amber-bg);color:var(--amber-text)}
+    /* Filter Bar */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+    }
 
-.be-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px}
-.be-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:10px}
+    .filter-label {
+      font-size: 12px;
+      color: var(--text2);
+      white-space: nowrap;
+      font-weight: 500;
+    }
 
-.table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
-.table-scroll{overflow-x:auto}
-table.dt{width:100%;border-collapse:collapse;font-size:12px}
-table.dt th{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text2);font-weight:500;font-size:11px;background:var(--surface2);white-space:nowrap}
-table.dt td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap}
-table.dt tr:last-child td{border-bottom:none}
-table.dt tr:hover td{background:var(--surface2)}
-.badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:500}
-.badge-green{background:var(--green-bg);color:var(--green-text)}
-.badge-amber{background:var(--amber-bg);color:var(--amber-text)}
-.badge-blue{background:var(--blue-bg);color:var(--blue-text)}
-.badge-red{background:var(--red-bg);color:var(--red-text)}
-.no-data{text-align:center;padding:30px;color:var(--text3);font-size:13px}
+    .filter-bar input[type=date] {
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border2);
+      background: var(--surface2);
+      color: var(--text);
+      height: 32px;
+      cursor: pointer;
+    }
 
-.sync-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3);margin-bottom:16px;flex-wrap:wrap}
-.footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);text-align:center}
-</style>
+    .filter-bar input[type=date]:focus {
+      outline: 2px solid var(--blue);
+      outline-offset: 1px;
+    }
+
+    .sep {
+      color: var(--text3);
+      font-size: 12px;
+    }
+
+    .quick-btns {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .qb {
+      padding: 4px 11px;
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      background: var(--surface2);
+      font-size: 11px;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+
+    .qb:hover,
+    .qb.active {
+      background: var(--blue-bg);
+      color: var(--blue-text);
+      border-color: var(--blue);
+    }
+
+    .filter-summary {
+      font-size: 11px;
+      color: var(--text3);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* Tabs */
+    .tab-row {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 4px;
+      width: fit-content;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 7px 16px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      font-size: 13px;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .1);
+      font-weight: 500;
+    }
+
+    /* Metric Cards */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .mc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+
+    .mc-label {
+      font-size: 11px;
+      color: var(--text2);
+      margin-bottom: 5px;
+    }
+
+    .mc-val {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .mc-sub {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 3px;
+    }
+
+    .c-green {
+      color: var(--green);
+    }
+
+    .c-amber {
+      color: var(--amber);
+    }
+
+    .c-red {
+      color: var(--red);
+    }
+
+    .c-blue {
+      color: var(--blue);
+    }
+
+    /* Section titles */
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 10px;
+      letter-spacing: .01em;
+    }
+
+    /* Chart */
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .ld {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .ld-line {
+      width: 14px;
+      height: 3px;
+      border-radius: 1px;
+      display: inline-block;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    /* Verdict Box */
+    .verdict-box {
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .verdict-green {
+      background: var(--green-bg);
+      border: 1.5px solid var(--green);
+    }
+
+    .verdict-amber {
+      background: var(--amber-bg);
+      border: 1.5px solid var(--amber);
+    }
+
+    .verdict-icon {
+      font-size: 28px;
+      line-height: 1.2;
+      flex-shrink: 0;
+    }
+
+    .verdict-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .verdict-body {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    /* Gauge */
+    .gauge-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .gauge-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      text-align: center;
+    }
+
+    .gauge-label {
+      font-size: 11px;
+      color: var(--text2);
+      margin-bottom: 4px;
+    }
+
+    .gauge-val {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .gauge-bar-wrap {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 5px;
+    }
+
+    .gauge-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .5s ease;
+    }
+
+    .gauge-sub {
+      font-size: 10px;
+      color: var(--text3);
+    }
+
+    /* Signal Cards */
+    .signal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .signal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+
+    .signal-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .pill-green {
+      background: var(--green-bg);
+      color: var(--green-text);
+    }
+
+    .pill-amber {
+      background: var(--amber-bg);
+      color: var(--amber-text);
+    }
+
+    .pill-red {
+      background: var(--red-bg);
+      color: var(--red-text);
+    }
+
+    .signal-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .signal-metric {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 4px 0;
+    }
+
+    .signal-body {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.55;
+    }
+
+    /* Breakeven Card */
+    .be-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+
+    .be-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .be-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .be-item-label {
+      font-size: 11px;
+      color: var(--text2);
+      margin-bottom: 3px;
+    }
+
+    .be-item-val {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .be-body {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.7;
+    }
+
+    /* Table */
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    table.dt {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    table.dt th {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text2);
+      font-weight: 500;
+      font-size: 11px;
+      background: var(--surface2);
+      white-space: nowrap;
+    }
+
+    table.dt td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    table.dt tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.dt tr:hover td {
+      background: var(--surface2);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .badge-green {
+      background: var(--green-bg);
+      color: var(--green-text);
+    }
+
+    .badge-amber {
+      background: var(--amber-bg);
+      color: var(--amber-text);
+    }
+
+    .badge-red {
+      background: var(--red-bg);
+      color: var(--red-text);
+    }
+
+    .badge-blue {
+      background: var(--blue-bg);
+      color: var(--blue-text);
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 30px;
+      color: var(--text3);
+      font-size: 13px;
+    }
+
+    /* Two-col */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media(max-width:640px) {
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Waterfall labels */
+    .wf-per100 {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .wf-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .wf-row:last-child {
+      border-bottom: none;
+    }
+
+    .wf-row-label {
+      font-size: 13px;
+      width: 160px;
+      flex-shrink: 0;
+    }
+
+    .wf-row-bar-wrap {
+      flex: 1;
+      height: 20px;
+      background: var(--surface2);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .wf-row-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .5s ease;
+    }
+
+    .wf-row-val {
+      font-size: 13px;
+      font-weight: 600;
+      width: 70px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .wf-row-pct {
+      font-size: 11px;
+      color: var(--text3);
+      width: 50px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Chart caption */
+    .chart-caption {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: var(--surface2);
+      border-radius: 6px;
+      border-left: 3px solid var(--border2);
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.65;
+    }
+
+    .chart-caption strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .chart-caption .cap-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .chart-caption .cap-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--text2);
+    }
+
+    .cap-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    /* Loading overlay */
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 999;
+      transition: opacity .4s;
+    }
+
+    #loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border2);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-text {
+      font-size: 14px;
+      color: var(--text2);
+    }
+
+    .loading-sub {
+      font-size: 12px;
+      color: var(--text3);
+    }
+
+    /* Error banner */
+    #error-banner {
+      display: none;
+      background: var(--red-bg);
+      border: 1.5px solid var(--red);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: var(--red-text);
+    }
+
+    /* Live badge */
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--green-bg);
+      color: var(--green-text);
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .4
+      }
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text3);
+      text-align: center;
+    }
+    /* Guide box */
+    .guide-box {
+      background: var(--blue-bg);
+      border: 1px solid var(--blue);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .guide-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; cursor: pointer; user-select: none;
+    }
+    .guide-header-left { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--blue-text); }
+    .guide-toggle { font-size: 11px; color: var(--blue-text); opacity: 0.7; }
+    .guide-body {
+      padding: 0 14px 12px;
+      font-size: 12px; color: var(--text2); line-height: 1.75;
+    }
+    .guide-body ul { padding-left: 18px; margin: 4px 0 0; }
+    .guide-body li { margin-bottom: 3px; }
+    .guide-body strong { color: var(--text); }
+  </style>
 </head>
+
 <body>
-
-<!-- Loading Overlay -->
-<div id="loading-overlay">
-  <div class="spinner"></div>
-  <div class="loading-text">กำลังดึงข้อมูลจาก Google Sheet...</div>
-  <div class="loading-sub" id="loading-sub">เชื่อมต่อ...</div>
-</div>
-
-<div class="wrapper">
-  <div id="error-banner" role="alert"></div>
-
-  <div class="hdr">
-    <div>
-      <div class="eyebrow">CK Printing · Live Data</div>
-      <h1>Investment Decision Dashboard</h1>
-      <div class="subtitle">ดึงข้อมูลจาก Google Sheet โดยตรง · อัปเดตทุกครั้งที่เปิด</div>
-    </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-      <span class="live-badge"><span class="live-dot"></span>Live Data</span>
-      <span style="font-size:11px;color:var(--text3)" id="sync-time">—</span>
-    </div>
+  <!-- Loading Overlay -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text">กำลังดึงข้อมูลจาก Google Sheet...</div>
+    <div class="loading-sub" id="loading-sub">เชื่อมต่อ...</div>
   </div>
 
-  <!-- Filter -->
-  <div class="filter-bar">
-    <span class="filter-label">ช่วงวันที่</span>
-    <input type="date" id="dateFrom" value="2026-01-01" min="2020-01-01" max="2030-12-31" onchange="onFilterChange()">
-    <span class="sep">→</span>
-    <input type="date" id="dateTo" min="2020-01-01" max="2030-12-31" onchange="onFilterChange()">
-    <div class="quick-btns">
-      <button class="qb active" onclick="setQuick('ytd',this)">ปีนี้ (YTD)</button>
-      <button class="qb" onclick="setQuick('all',this)">ทั้งหมด</button>
-      <button class="qb" onclick="setQuick('q1_26',this)">Q1/2026</button>
-      <button class="qb" onclick="setQuick('mar_apr',this)">มี.ค.–เม.ย.</button>
-      <button class="qb" onclick="setQuick('last30',this)">30 วัน</button>
-      <button class="qb" onclick="setQuick('last90',this)">90 วัน</button>
-    </div>
-    <label class="filter-toggle">
-      <input type="checkbox" id="validOnlyToggle" checked onchange="onFilterChange()"
-        style="width:14px;height:14px;accent-color:var(--green);cursor:pointer">
-      เฉพาะออเดอร์จริง
-    </label>
-    <span class="filter-summary" id="filterSummary">—</span>
-    <button onclick="reloadData()" style="padding:4px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--surface2);font-size:11px;color:var(--text2);cursor:pointer">↻ Refresh</button>
-  </div>
+  <div class="wrapper">
+    <div id="error-banner" role="alert"></div>
 
-  <!-- Tabs -->
-  <div class="tab-row">
-    <button class="tab-btn active" onclick="sw('verdict',this)">คำตัดสินใจ</button>
-    <button class="tab-btn" onclick="sw('waterfall',this)">กำไร-ขาดทุน</button>
-    <button class="tab-btn" onclick="sw('trend',this)">แนวโน้ม</button>
-    <button class="tab-btn" onclick="sw('product',this)">รายสินค้า</button>
-    <button class="tab-btn" onclick="sw('jobtype',this)">ประเภทงาน</button>
-    <button class="tab-btn" onclick="sw('orders',this)">รายออเดอร์</button>
-  </div>
-
-  <!-- TAB: VERDICT -->
-  <div id="tab-verdict">
-    <div id="verdict-box" class="verdict-box verdict-green">
-      <div class="verdict-icon" id="verdict-icon">✓</div>
-      <div><div class="verdict-title" id="verdict-title">—</div><div class="verdict-body" id="verdict-body">—</div></div>
-    </div>
-    <div class="metric-grid" id="verdict-metrics"></div>
-    <div class="section-title">Health Score</div>
-    <div class="gauge-row" id="gauge-row"></div>
-    <div class="signal-grid" id="signal-cards"></div>
-  </div>
-
-  <!-- TAB: WATERFALL -->
-  <div id="tab-waterfall" style="display:none">
-    <div class="chart-card">
-      <div class="section-title">กำไร-ขาดทุน ทีละขั้น</div>
-      <div class="chart-wrap" style="height:280px"><canvas id="wfChart"></canvas></div>
-      <div class="chart-caption"><strong>Revenue → หักต้นทุนสินค้า (COGS) → Gross Profit → หักค่าโฆษณา → Net Profit</strong> · แท่งเขียว = เงินที่ได้ · แท่งแดง/ส้ม = ค่าใช้จ่าย</div>
-    </div>
-    <div class="metric-grid" id="wf-metrics"></div>
-    <div class="be-card" id="be-card"></div>
-  </div>
-
-  <!-- TAB: TREND -->
-  <div id="tab-trend" style="display:none">
-    <div class="metric-grid" id="trend-order-metrics"></div>
-    <div class="chart-card">
-      <div class="section-title">Revenue · Net Profit · Ad Spend รายเดือน</div>
-      <div class="legend-row">
-        <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#2870c8"></span>Revenue</span>
-        <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#1a8c68"></span>Net Profit</span>
-        <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#a06010;width:14px;height:3px;border-radius:0"></span>Ad Spend</span>
+    <!-- Header -->
+    <div class="hdr">
+      <div class="hdr-left">
+        <div class="eyebrow">CK Printing · Meta Ads Analytics</div>
+        <h1>Investment Decision Dashboard</h1>
+        <div class="subtitle">ดึงข้อมูลจริงจาก Google Sheet · อัปเดตทุกครั้งที่เปิด</div>
       </div>
-      <div class="chart-wrap" style="height:260px"><canvas id="trendChart"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <div class="section-title">Net Margin % รายเดือน</div>
-      <div class="chart-wrap" style="height:160px"><canvas id="marginChart"></canvas></div>
-      <div class="chart-caption"><strong style="color:var(--green)">เขียว</strong> = ดี (>30%) · <strong style="color:var(--amber)">ส้ม</strong> = พอไป (0–30%) · <strong style="color:var(--red)">แดง</strong> = ขาดทุน</div>
-    </div>
-    <div class="chart-card">
-      <div class="section-title">จำนวนออเดอร์ + จำนวนชิ้น รายเดือน</div>
-      <div class="legend-row">
-        <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#2870c8"></span>ออเดอร์ (แกนซ้าย)</span>
-        <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#1a8c68;width:14px;height:3px;border-radius:0"></span>ชิ้น (แกนขวา)</span>
-      </div>
-      <div class="chart-wrap" style="height:220px"><canvas id="orderVolumeChart"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <div class="section-title">จำนวนชิ้นที่ขายได้ แยกรุ่นสินค้า รายเดือน</div>
-      <div class="legend-row" id="productMixLegend"></div>
-      <div class="chart-wrap" style="height:280px"><canvas id="productMixChart"></canvas></div>
-      <div class="chart-caption"><strong>hover</strong> ที่แต่ละสีจะเห็นจำนวนชิ้น + กี่ออเดอร์ + เฉลี่ยชิ้น/ออเดอร์</div>
-    </div>
-  </div>
-
-  <!-- TAB: PRODUCT -->
-  <div id="tab-product" style="display:none">
-    <div class="chart-card">
-      <div class="section-title">Margin % รายสินค้า</div>
-      <div class="chart-wrap" style="height:280px"><canvas id="productChart"></canvas></div>
-    </div>
-    <div class="table-card">
-      <div class="table-scroll">
-        <table class="dt">
-          <thead><tr><th>สินค้า</th><th style="text-align:right">ออเดอร์</th><th style="text-align:right">ชิ้นรวม</th><th style="text-align:right">ราคาเฉลี่ย/ชิ้น</th><th style="text-align:right">Margin %</th><th style="text-align:right">ยอดขายรวม</th><th>สัญญาณ</th></tr></thead>
-          <tbody id="productBody"></tbody>
-        </table>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <span class="live-badge"><span class="live-dot"></span>Live Data</span>
+        <span style="font-size:11px;color:var(--text3)" id="sync-time">—</span>
       </div>
     </div>
-  </div>
 
-  <!-- TAB: JOB TYPE -->
-  <div id="tab-jobtype" style="display:none">
-    <div class="metric-grid" id="jobtype-metrics"></div>
-    <div class="chart-card">
-      <div class="section-title">สัดส่วนรายได้แยกตามประเภทงาน</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center">
-        <div style="position:relative;height:260px"><canvas id="jobtypePieChart"></canvas></div>
-        <div id="jobtypeLegend" style="font-size:13px;display:flex;flex-direction:column;gap:10px"></div>
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <span class="filter-label">ช่วงวันที่</span>
+      <input type="date" id="dateFrom" value="2026-01-01" min="2025-09-01" max="2030-12-31" onchange="onFilterChange()">
+      <span class="sep">→</span>
+      <input type="date" id="dateTo" min="2025-09-01" max="2030-12-31" onchange="onFilterChange()">
+      <span class="sep" style="margin:0 2px">|</span>
+      <span class="filter-label">เลือกทั้งเดือน:</span>
+      <input type="month" id="monthPicker" onchange="onMonthSelect(this.value)"
+        style="font-size:12px;padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface2);color:var(--text);height:32px;cursor:pointer">
+      <div class="quick-btns" style="margin-left:8px">
+        <button class="qb active" onclick="setQuick('all',this)">ทั้งหมด</button>
+        <button class="qb" onclick="setQuick('q1_26',this)">Q1/2026</button>
+        <button class="qb" onclick="setQuick('mar_apr',this)">มี.ค.–เม.ย.</button>
+        <button class="qb" onclick="setQuick('jan_feb',this)">ม.ค.–ก.พ.</button>
+        <button class="qb" onclick="setQuick('q4_25',this)">Q4/2025</button>
+        <button class="qb" onclick="setQuick('last30',this)">30 วันล่าสุด</button>
+      </div>
+      <label
+        style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;margin-left:4px">
+        <input type="checkbox" id="doneOnlyToggle" onchange="onFilterChange()" checked
+          style="width:14px;height:14px;accent-color:var(--green);cursor:pointer">
+        เฉพาะออเดอร์จริง
+      </label>
+      <span class="filter-summary" id="filterSummary">—</span>
+      <button onclick="reloadData()"
+        style="padding:4px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--surface2);font-size:11px;color:var(--text2);cursor:pointer">↻
+        Refresh</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="sw('verdict',this)">ภาพรวม</button>
+      <button class="tab-btn" onclick="sw('unit',this)">Unit Economics</button>
+      <button class="tab-btn" onclick="sw('waterfall',this)">กำไร-ขาดทุน</button>
+      <button class="tab-btn" onclick="sw('trend',this)">แนวโน้ม</button>
+      <button class="tab-btn" onclick="sw('product',this)">รายสินค้า</button>
+      <button class="tab-btn" onclick="sw('orders',this)">รายออเดอร์</button>
+      <button class="tab-btn" onclick="sw('jobtype',this)">ประเภทงาน</button>
+    </div>
+
+    <!-- TAB: VERDICT -->
+    <div id="tab-verdict">
+      <div class="guide-box">
+        <div class="guide-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.guide-toggle').textContent=this.nextElementSibling.style.display==='none'?'▼ แสดง':'▲ ซ่อน'">
+          <span class="guide-header-left">📋 คู่มือ — หน้าภาพรวม</span>
+          <span class="guide-toggle">▲ ซ่อน</span>
+        </div>
+        <div class="guide-body">
+          <strong>หน้านี้ใช้ดูอะไร?</strong> ดูสรุปสุขภาพธุรกิจในช่วงเวลาที่เลือก ว่าควรลงทุนโฆษณาต่อหรือไม่<br>
+          <ul>
+            <li><strong>กล่องสีเขียว ✓</strong> = ตัวเลขทั้งสองผ่านเกณฑ์ (Net Margin ≥30% และ ROAS ≥2.5x) — ลุยได้</li>
+            <li><strong>กล่องสีส้ม ⚠</strong> = มีตัวเลขอย่างน้อยหนึ่งตัวต่ำกว่าเกณฑ์ — ควรระวัง</li>
+            <li><strong>Health Score</strong> คะแนนรวมจาก 3 ด้าน: กำไร, ประสิทธิภาพโฆษณา, คุณภาพ Lead (เต็ม 100)</li>
+            <li><strong>สัญญาณ</strong> แต่ละการ์ดบอกว่าตัวชี้วัดนั้นผ่านหรือไม่ พร้อมคำแนะนำ</li>
+            <li>เปลี่ยนช่วงเวลาด้านบน → ทุกตัวเลขอัปเดตอัตโนมัติ</li>
+          </ul>
+        </div>
+      </div>
+      <div id="verdict-box" class="verdict-box verdict-green">
+        <div class="verdict-icon" id="verdict-icon">✓</div>
+        <div>
+          <div class="verdict-title" id="verdict-title">—</div>
+          <div class="verdict-body" id="verdict-body">—</div>
+        </div>
+      </div>
+      <div class="metric-grid" id="verdict-metrics"></div>
+      <div class="section-title">Health Score ในช่วงที่เลือก</div>
+      <div class="gauge-row" id="gauge-row"></div>
+      <div class="section-title">สัญญาณ</div>
+      <div class="signal-grid" id="signal-cards"></div>
+    </div>
+
+    <!-- TAB: UNIT ECONOMICS -->
+    <div id="tab-unit" style="display:none">
+      <div class="guide-box">
+        <div class="guide-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.guide-toggle').textContent=this.nextElementSibling.style.display==='none'?'▼ แสดง':'▲ ซ่อน'">
+          <span class="guide-header-left">📋 คู่มือ — หน้า Unit Economics</span>
+          <span class="guide-toggle">▲ ซ่อน</span>
+        </div>
+        <div class="guide-body">
+          <strong>หน้านี้ใช้ดูอะไร?</strong> ดูโครงสร้างต้นทุนต่อออเดอร์ และหาจุดคุ้มทุนของค่าโฆษณา<br>
+          <ul>
+            <li><strong>Avg Order Value</strong> มูลค่าเฉลี่ยต่อ 1 ออเดอร์ในช่วงที่เลือก</li>
+            <li><strong>Breakeven ROAS</strong> = 1 ÷ Gross Margin — ถ้า ROAS ต่ำกว่านี้คือขาดทุนแน่นอน</li>
+            <li><strong>Max CPL ที่ยังคุ้ม</strong> ค่าคนทักสูงสุดที่ยังยอมรับได้ (≈ 10% ของกำไรขั้นต้นต่อออเดอร์)</li>
+            <li><strong>Breakeven Analysis</strong> บอกว่าต้องขายเดือนละกี่บาทถึงจะครอบคลุมค่าโฆษณา</li>
+            <li>กราฟ Ad Efficiency รายเดือน: แท่งเขียวควรสูงกว่าแท่งน้ำเงิน + เส้น ROAS ควรอยู่เหนือ 2.6x</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metric-grid" id="unit-metrics"></div>
+      <div class="be-card" id="be-card"></div>
+      <div class="chart-card">
+        <div class="section-title">Ad Efficiency รายเดือน</div>
+        <div class="legend-row">
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#2870c8"></span>Ad
+            Spend</span>
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#1a8c68"></span>Gross
+            Profit</span>
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld-line"
+              style="background:#6655c8"></span>ROAS (แกนขวา)</span>
+        </div>
+        <div class="chart-wrap" style="height:240px"><canvas id="effChart"></canvas></div>
+        <div class="chart-caption">
+          <strong>อ่านกราฟนี้อย่างไร</strong> — แท่งสีน้ำเงินคือเงินที่จ่ายโฆษณา แท่งสีเขียวคือกำไรขั้นต้นที่ได้กลับมา
+          ถ้าแท่งเขียวสูงกว่าแท่งน้ำเงินมาก แสดงว่าโฆษณาคุ้มค่า · เส้นสีม่วง (ROAS) ควรอยู่เหนือ <strong>2.6x</strong>
+          เสมอ ถ้าต่ำกว่านั้นหมายความว่าจ่ายโฆษณาแพงกว่ากำไรที่ได้
+        </div>
       </div>
     </div>
-    <div class="chart-card">
-      <div class="section-title">รายได้แยกประเภทงาน รายเดือน</div>
-      <div class="legend-row" id="jobtypeMonthLegend"></div>
-      <div style="position:relative;height:260px"><canvas id="jobtypeMonthChart"></canvas></div>
+
+    <!-- TAB: WATERFALL -->
+    <div id="tab-waterfall" style="display:none">
+      <div class="guide-box">
+        <div class="guide-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.guide-toggle').textContent=this.nextElementSibling.style.display==='none'?'▼ แสดง':'▲ ซ่อน'">
+          <span class="guide-header-left">📋 คู่มือ — หน้ากำไร-ขาดทุน</span>
+          <span class="guide-toggle">▲ ซ่อน</span>
+        </div>
+        <div class="guide-body">
+          <strong>หน้านี้ใช้ดูอะไร?</strong> ดูว่าเงินจากยอดขายถูกหักออกทีละขั้นอย่างไร จนเหลือกำไรที่แท้จริง<br>
+          <ul>
+            <li><strong>Revenue → COGS → Gross Profit → Ad Spend → Net Profit</strong> ทีละขั้นเป็นกราฟ Waterfall</li>
+            <li><strong>ตาราง ต่อ ฿100</strong> บอกว่าทุก 100 บาทที่ขายได้ เหลือกำไรกี่บาท ต้นทุนกี่บาท</li>
+            <li>ถ้า Net Profit ต่อ ฿100 น้อยกว่า 30 บาท ควรทบทวนราคาขายหรือลดค่าโฆษณา</li>
+            <li>การ์ดด้านล่างแสดงยอดรวมแต่ละรายการในช่วงเวลาที่เลือก</li>
+          </ul>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="section-title">กำไร-ขาดทุน ทีละขั้น</div>
+        <div class="legend-row">
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld"
+              style="background:#2870c8"></span>Revenue</span>
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld"
+              style="background:#c43030"></span>ต้นทุน/ค่าใช้จ่าย</span>
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld"
+              style="background:#1a8c68"></span>กำไรสุทธิ</span>
+        </div>
+        <div class="chart-wrap" style="height:280px"><canvas id="wfChart"></canvas></div>
+        <div class="chart-caption">
+          <strong>อ่านกราฟนี้อย่างไร</strong> — แสดงให้เห็นว่าเงินหายไปไหนทีละขั้น เริ่มจากยอดขายทั้งหมด (Revenue)
+          แล้วหักต้นทุนสินค้า (COGS) จะได้ Gross Profit จากนั้นหักค่าโฆษณา Meta Ads จึงได้ <strong>Net Profit</strong>
+          ที่เหลือจริงๆ · แท่งสีเขียวคือเงินที่ได้ แท่งสีแดง/ส้มคือค่าใช้จ่าย
+        </div>
+      </div>
+      <div class="section-title">ต่อ ฿100 ยอดขาย</div>
+      <div id="wf-per100" class="wf-per100"></div>
+      <div class="metric-grid" id="wf-metrics"></div>
     </div>
-    <div class="table-card">
-      <div class="table-scroll">
-        <table class="dt">
-          <thead><tr><th>ประเภทงาน</th><th style="text-align:right">ออเดอร์</th><th style="text-align:right">รายได้รวม</th><th style="text-align:right">สัดส่วน</th><th style="text-align:right">เฉลี่ย/ออเดอร์</th><th style="text-align:right">Gross Profit</th></tr></thead>
-          <tbody id="jobtypeBody"></tbody>
-        </table>
+
+    <!-- TAB: TREND -->
+    <div id="tab-trend" style="display:none">
+      <div class="guide-box">
+        <div class="guide-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.guide-toggle').textContent=this.nextElementSibling.style.display==='none'?'▼ แสดง':'▲ ซ่อน'">
+          <span class="guide-header-left">📋 คู่มือ — หน้าแนวโน้ม</span><span class="guide-toggle">▲ ซ่อน</span>
+        </div>
+        <div class="guide-body">
+          <strong>หน้านี้ใช้ดูอะไร?</strong> เปรียบเทียบผลประกอบการรายเดือน หาเดือนที่สัญญาณดี/แย่ เพื่อวางแผนงบเดือนถัดไป<ul>
+            <li><strong>กราฟแรก</strong>: เส้นน้ำเงิน = Revenue, แท่งเขียว = Net Profit, แท่งส้ม = Ad Spend — เดือนไหนแท่งเขียวสูงคือเดือนที่ดี</li>
+            <li><strong>ตารางสรุป</strong> เปรียบแต่ละเดือนกันทันที</li>
+            <li>หน้านี้ <strong>ล็อคเป็นรายเดือนปฏิทิน</strong> เสมอ ไม่เปลี่ยนตามตัวกรองวันด้านบน</li>
+          </ul>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="section-title">Revenue · Net Profit · Ad Spend รายเดือน</div>
+        <div class="legend-row">
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld"
+              style="background:#2870c8"></span>Revenue</span>
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#1a8c68"></span>Net
+            Profit</span>
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld-line"
+              style="background:#a06010"></span>Ad Spend</span>
+        </div>
+        <div class="chart-wrap" style="height:260px"><canvas id="trendChart"></canvas></div>
+        <div class="chart-caption">
+          <strong>อ่านกราฟนี้อย่างไร</strong> — ดูทิศทางรายได้และกำไรในแต่ละเดือน
+          ถ้าเส้นสีเขียว (Net Profit) เติบโตขนานหรือเร็วกว่าเส้นน้ำเงิน (Revenue) แสดงว่าธุรกิจมีประสิทธิภาพขึ้น ·
+          เส้นประสีส้ม (Ad Spend) ควรอยู่ต่ำกว่า Gross Profit เสมอ
+          ถ้าขึ้นมาใกล้เส้นเขียวมากแสดงว่าค่าโฆษณากินกำไรมากเกินไป
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="section-title">Net Margin % รายเดือน</div>
+        <div class="chart-wrap" style="height:160px"><canvas id="marginChart"></canvas></div>
+        <div class="chart-caption">
+          <strong>Net Margin %</strong> คือสัดส่วนกำไรสุทธิต่อยอดขาย หลังหักทั้งต้นทุนสินค้าและค่าโฆษณาแล้ว ·
+          <strong>สีเขียว</strong> = ดี (เกิน 30%) · <strong>สีส้ม</strong> = พอไป (0–30%) · <strong>สีแดง</strong> =
+          ขาดทุน ·
+          เดือนที่ margin ต่ำผิดปกติอาจเกิดจากออเดอร์น้อยแต่จ่ายโฆษณาเท่าเดิม ควรปรับงบโฆษณาให้สอดคล้องกับ demand
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="section-title">กำไร-ขาดทุน รายเดือน (Stacked Bar)</div>
+        <div class="legend-row">
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld"
+              style="background:#2870c8"></span>Revenue</span>
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#c43030"></span>COGS
+            (ต้นทุนสินค้า)</span>
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#a06010"></span>Ad
+            Spend</span>
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#1a8c68"></span>Net
+            Profit</span>
+        </div>
+        <div class="chart-wrap" style="height:280px"><canvas id="plMonthChart"></canvas></div>
+        <div class="chart-caption">
+          <strong>อ่านกราฟนี้อย่างไร</strong> — แต่ละเดือนแสดงโครงสร้างทางการเงินในแท่งเดียว ·
+          <strong>แท่งซ้อนสีแดง+ส้ม</strong> คือต้นทุนทั้งหมด (สินค้า + โฆษณา) ·
+          <strong>แท่งสีเขียว</strong> คือกำไรสุทธิที่เหลือ — ยิ่งสูงยิ่งดี ·
+          <strong>เส้นน้ำเงิน</strong> คือ Revenue รวม ดูว่ายอดขายเติบโตสม่ำเสมอหรือไม่ ·
+          เดือนที่แท่งเขียวหดสั้นลงทั้งที่เส้นน้ำเงินไม่เปลี่ยน แสดงว่าต้นทุนหรือค่าโฆษณากำลังกินกำไรมากขึ้น
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="section-title">New Leads + Ad Spend รายวัน</div>
+        <div class="legend-row">
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld" style="background:#2870c8"></span>Ad
+            Spend/วัน</span>
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld-line"
+              style="background:#1a8c68"></span>New Leads</span>
+        </div>
+        <div class="chart-wrap" style="height:200px"><canvas id="dailyChart"></canvas></div>
+        <div class="chart-caption">
+          <strong>อ่านกราฟนี้อย่างไร</strong> — แท่งน้ำเงินคือค่าโฆษณารายวัน เส้นเขียวคือจำนวน New Leads (คนทักเข้ามา) ·
+          วันที่ใช้เงินมากแต่ leads น้อย = โฆษณาไม่มีประสิทธิภาพ ควรหยุดหรือเปลี่ยน creative ·
+          วันที่ leads พุ่งขึ้นโดยไม่ต้องจ่ายแพงขึ้น = โฆษณา set นั้นทำงานได้ดี ควรเพิ่มงบ
+        </div>
+      </div>
+
+      <!-- Order volume metrics -->
+      <div class="section-title" style="margin-top:4px">ปริมาณออเดอร์ รายเดือน</div>
+      <div class="metric-grid" id="trend-order-metrics"></div>
+
+      <div class="chart-card">
+        <div class="section-title">จำนวนออเดอร์ + จำนวนชิ้นที่ขายได้ รายเดือน</div>
+        <div class="legend-row">
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld"
+              style="background:#2870c8"></span>จำนวนออเดอร์ (แกนซ้าย)</span>
+          <span style="display:flex;align-items:center;gap:5px"><span class="ld-line"
+              style="background:#1a8c68"></span>จำนวนชิ้น (แกนขวา)</span>
+        </div>
+        <div class="chart-wrap" style="height:240px"><canvas id="orderVolumeChart"></canvas></div>
+        <div class="chart-caption">
+          <strong>อ่านกราฟนี้อย่างไร</strong> — แท่งน้ำเงิน = จำนวนออเดอร์ · เส้นเขียว = จำนวนชิ้นรวม ·
+          <strong>hover ที่แต่ละเดือน</strong> จะเห็นค่าเฉลี่ยชิ้น/ออเดอร์ทันที ·
+          เฉลี่ยสูง (>100 ชิ้น/ออเดอร์) = ออเดอร์ bulk · เฉลี่ยต่ำ (<30 ชิ้น/ออเดอร์)=ลูกค้า retail </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="section-title">ขนาดของแต่ละออเดอร์ (ชิ้น/ออเดอร์)</div>
+          <div class="legend-row">
+            <span style="display:flex;align-items:center;gap:5px"><span class="ld"
+                style="border-radius:50%;background:#2870c8"></span>ออเดอร์แต่ละใบ · แกน X = วันที่ · แกน Y =
+              จำนวนชิ้น</span>
+          </div>
+          <div class="chart-wrap" style="height:240px"><canvas id="orderScatterChart"></canvas></div>
+          <div class="chart-caption">
+            <strong>อ่านกราฟนี้อย่างไร</strong> — แต่ละจุดคือ 1 ออเดอร์ · จุดสูง = ออเดอร์ใหญ่ bulk · จุดต่ำ =
+            ออเดอร์เล็ก ·
+            hover ที่จุดจะเห็นชื่อสินค้า วันที่ และจำนวนชิ้น · ช่วงที่มีจุดกระจุกตัวสูง = ลูกค้า bulk เข้ามาหลายราย ·
+            ถ้าส่วนใหญ่เป็นจุดเตี้ยๆ แสดงว่าฐานลูกค้าเป็น retail ควรพิจารณา minimum order
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="section-title">จำนวนชิ้นที่ขายได้ แยกรุ่นสินค้า รายเดือน</div>
+          <div class="legend-row" id="productMixLegend"></div>
+          <div class="chart-wrap" style="height:300px"><canvas id="productMixChart"></canvas></div>
+          <div class="chart-caption">
+            <strong>อ่านกราฟนี้อย่างไร</strong> — แท่ง stacked แสดงสัดส่วนสินค้าแต่ละรุ่นในแต่ละเดือน ·
+            ดูได้ว่าเดือนไหนสินค้ารุ่นไหนขายดี และมี product mix เปลี่ยนไปตามฤดูกาลหรือไม่
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: PRODUCT -->
+      <div id="tab-product" style="display:none">
+        <div class="guide-box">
+          <div class="guide-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.guide-toggle').textContent=this.nextElementSibling.style.display==='none'?'▼ แสดง':'▲ ซ่อน'">
+            <span class="guide-header-left">📋 คู่มือ — หน้ารายสินค้า</span><span class="guide-toggle">▲ ซ่อน</span>
+          </div>
+          <div class="guide-body">
+            <strong>หน้านี้ใช้ดูอะไร?</strong> วิเคราะห์ว่าสินค้าไหนไปได้ดี และควรเน้นให้ตัวไหน<ul>
+              <li><strong>Pie ช่วงที่เลือก</strong>: สินค้าไหนทำเงินสูงสุด vs สินค้าไหนขายได้ปริมาณมากสุด</li>
+              <li><strong>Margin % รายสินค้า</strong>: สีเขียว Push = ควรเน้นโฆษณา, สีส้ม OK, สีแดง = ควรระวัง Margin ต่ำ</li>
+              <li>เปลี่ยนช่วงเวลา → กราฟและตารางอัปเดตทันที</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Sales Share Pie Charts -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+          <div class="chart-card" style="margin-bottom:0">
+            <div class="section-title">ยอดขาย (฿) — ช่วงที่เลือก</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center">
+              <div style="position:relative;height:220px"><canvas id="productPieRev"></canvas></div>
+              <div id="productPieLegendRev" style="font-size:12px;display:flex;flex-direction:column;gap:7px"></div>
+            </div>
+          </div>
+          <div class="chart-card" style="margin-bottom:0">
+            <div class="section-title">จำนวนชิ้น — ช่วงที่เลือก</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center">
+              <div style="position:relative;height:220px"><canvas id="productPieQty"></canvas></div>
+              <div id="productPieLegendQty" style="font-size:12px;display:flex;flex-direction:column;gap:7px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="section-title">Margin % รายสินค้า</div>
+          <div class="chart-wrap" style="height:260px"><canvas id="productChart"></canvas></div>
+          <div class="chart-caption">
+            <strong>อ่านกราฟนี้อย่างไร</strong> — แสดง Margin % ของแต่ละสินค้าหลังหักต้นทุนการผลิตแล้ว
+            (ยังไม่รวมค่าโฆษณา) ·
+            <strong>สีเขียว (Push)</strong> Margin เกิน 55% — ควรโฆษณาสินค้านี้เป็นหลัก ·
+            <strong>สีส้ม (OK)</strong> Margin 40–55% — ยังคุ้มค่า แต่หาทางเพิ่มราคาได้ ·
+            <strong>สีแดง (ระวัง)</strong> Margin ต่ำกว่า 40% — ถ้าต้องจ่ายค่าโฆษณาด้วย กำไรเหลือน้อยมาก ควรเน้นขาย B2B bulk
+          </div>
+        </div>
+        <div class="section-title">รายละเอียดรายสินค้า</div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="dt">
+              <thead>
+                <tr>
+                  <th>สินค้า</th>
+                  <th>ต้นทุน/ชิ้น</th>
+                  <th>ราคาขายเฉลี่ย</th>
+                  <th>Margin/ชิ้น</th>
+                  <th>Margin %</th>
+                  <th>จำนวน</th>
+                  <th>ยอดขายรวม</th>
+                  <th>สัญญาณ</th>
+                </tr>
+              </thead>
+              <tbody id="productBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="be-card" id="product-advice">
+          <div class="be-title">คำแนะนำ</div>
+          <div class="be-body" id="product-advice-body"></div>
+        </div>
+      </div>
+
+      <!-- TAB: ORDERS -->
+      <div id="tab-orders" style="display:none">
+        <div class="guide-box">
+          <div class="guide-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.guide-toggle').textContent=this.nextElementSibling.style.display==='none'?'▼ แสดง':'▲ ซ่อน'">
+            <span class="guide-header-left">📋 คู่มือ — หน้ารายออเดอร์</span><span class="guide-toggle">▲ ซ่อน</span>
+          </div>
+          <div class="guide-body">
+            <strong>หน้านี้ใช้ดูอะไร?</strong> ดูรายละเอียดทุกออเดอร์ ค้นหาออเดอร์ที่ทำกำไรสูงสุด<ul>
+              <li><strong>กรองช่องทาง</strong>: Facebook / Line / Others เพื่อดูว่าลูกค้าจากไหนมากว่า</li>
+              <li><strong>เรียงตาม</strong>: วันที่, ยอดขาย, กำไร, หรือ Margin%</li>
+              <li>สีสถานะ: <strong>เขียว</strong> = สำเร็จ, <strong>ส้ม</strong> = กำลังดำเนินการ, สามารถติดตามสถานะงานได้</li>
+            </ul>
+          </div>
+        </div>
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <div class="section-title" style="margin:0">รายออเดอร์ทั้งหมด</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select id="channelFilter" onchange="renderOrders()"
+              style="font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);height:32px">
+              <option value="">ทุกช่องทาง</option>
+              <option value="Facebook">Facebook</option>
+              <option value="Line">Line</option>
+              <option value="Others">Others</option>
+            </select>
+            <select id="sortOrder" onchange="renderOrders()"
+              style="font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);height:32px">
+              <option value="date-desc">วันที่ใหม่สุด</option>
+              <option value="rev-desc">ยอดขาย มาก→น้อย</option>
+              <option value="profit-desc">กำไร มาก→น้อย</option>
+              <option value="margin-desc">Margin% มาก→น้อย</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="dt">
+              <thead>
+                <tr>
+                  <th>วันที่</th>
+                  <th>สินค้า</th>
+                  <th>จำนวน</th>
+                  <th>ราคา</th>
+                  <th>ช่องทาง</th>
+                  <th>สถานะ</th>
+                  <th>ต้นทุน</th>
+                  <th>กำไร</th>
+                  <th>Margin%</th>
+                </tr>
+              </thead>
+              <tbody id="ordersBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="metric-grid" id="orders-summary"></div>
+      </div>
+
+      <!-- TAB: JOB TYPE -->
+      <div id="tab-jobtype" style="display:none">
+        <div class="guide-box">
+          <div class="guide-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.guide-toggle').textContent=this.nextElementSibling.style.display==='none'?'▼ แสดง':'▲ ซ่อน'">
+            <span class="guide-header-left">📋 คู่มือ — หน้าประเภทงาน</span><span class="guide-toggle">▲ ซ่อน</span>
+          </div>
+          <div class="guide-body">
+            <strong>หน้านี้ใช้ดูอะไร?</strong> วิเคราะห์ว่าเทคนิคพิมพ์อะไรทำเงินหลักให้ธุรกิจ<ul>
+              <li><strong>UV Print</strong> พิมพ์สี UV บนแก้ว · <strong>Laser</strong> แกะสลักเลเซอร์ · <strong>Both</strong> ใช้ทั้งสอง</li>
+              <li>งานที่ Margin สูงกว่ามักเป็นงาน Laser เพราะต้นทุนวัสดุต่ำแต่ราคาขายสูง</li>
+              <li>กราฟรายเดือน: เดือนไหนแท่ง Laser สูงขึ้น = ลูกค้างานแกะเข้ามามาก ซึ่ง Margin ดีกว่า UV</li>
+            </ul>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px">วิเคราะห์รายได้แยกตามประเภทงานพิมพ์ (คอลัม
+          <strong>การพิมพ์</strong> จาก Google Sheet)</p>
+        <div class="metric-grid" id="jobtype-metrics"></div>
+        <div class="chart-card">
+          <div class="section-title">สัดส่วนรายได้แยกตามประเภทงาน</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center">
+            <div style="position:relative;height:280px"><canvas id="jobtypePieChart"></canvas></div>
+            <div id="jobtypeLegend" style="font-size:13px;display:flex;flex-direction:column;gap:10px"></div>
+          </div>
+          <div class="chart-caption" style="margin-top:12px">
+            <strong>UV Print</strong> = พิมพ์ UV สีสัน · <strong>Laser</strong> = แกะสลักเลเซอร์ · <strong>Both</strong>
+            = งานที่ใช้ทั้งสองเทคนิค ·
+            <strong>Only White</strong> = พิมพ์สีขาวอย่างเดียว · งานที่มี margin สูงกว่ามักเป็นงาน Laser
+            เพราะต้นทุนวัสดุต่ำแต่ราคาขายสูง
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="section-title">รายได้แยกประเภทงาน รายเดือน</div>
+          <div class="legend-row" id="jobtypeMonthLegend"></div>
+          <div style="position:relative;height:260px"><canvas id="jobtypeMonthChart"></canvas></div>
+          <div class="chart-caption">
+            <strong>อ่านกราฟนี้อย่างไร</strong> — แต่ละเดือนแสดงสัดส่วนรายได้จากแต่ละประเภทงาน ·
+            เดือนที่แท่ง Laser สูงขึ้น = ลูกค้างานแกะเลเซอร์เข้ามามาก ซึ่งมักมี margin ดีกว่า UV Print ·
+            ใช้เทียบกับ Ad Spend เพื่อดูว่าโฆษณาดึงลูกค้าประเภทไหนมามากกว่ากัน
+          </div>
+        </div>
+        <div class="section-title">รายละเอียดแยกประเภทงาน</div>
+        <div class="table-card">
+          <div class="table-scroll">
+            <table class="dt">
+              <thead>
+                <tr>
+                  <th>ประเภทงาน</th>
+                  <th style="text-align:right">ออเดอร์</th>
+                  <th style="text-align:right">รายได้รวม</th>
+                  <th style="text-align:right">สัดส่วน</th>
+                  <th style="text-align:right">เฉลี่ย/ออเดอร์</th>
+                  <th style="text-align:right">ต้นทุนรวม</th>
+                  <th style="text-align:right">Gross Profit</th>
+                </tr>
+              </thead>
+              <tbody id="jobtypeBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">CK Printing Investment Dashboard · ดึงข้อมูลอัตโนมัติจาก Google Sheet · สร้างด้วย Chart.js
       </div>
     </div>
-  </div>
 
-  <!-- TAB: ORDERS -->
-  <div id="tab-orders" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-      <div class="section-title" style="margin:0">รายออเดอร์ทั้งหมด</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <select id="channelFilter" onchange="renderOrders()" style="font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);height:32px">
-          <option value="">ทุกช่องทาง</option>
-          <option value="Facebook">Facebook</option>
-          <option value="Line">Line</option>
-          <option value="Others">Others</option>
-        </select>
-        <select id="sortOrder" onchange="renderOrders()" style="font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);height:32px">
-          <option value="date-desc">วันที่ใหม่สุด</option>
-          <option value="rev-desc">ยอดขาย มาก→น้อย</option>
-          <option value="margin-desc">Margin% มาก→น้อย</option>
-        </select>
-      </div>
-    </div>
-    <div class="table-card">
-      <div class="table-scroll">
-        <table class="dt">
-          <thead><tr><th>วันที่</th><th>สินค้า</th><th style="text-align:right">ชิ้น</th><th style="text-align:right">ราคา</th><th>ช่องทาง</th><th>ประเภทงาน</th><th>สถานะ</th></tr></thead>
-          <tbody id="ordersBody"></tbody>
-        </table>
-      </div>
-    </div>
-    <div class="metric-grid" id="orders-summary"></div>
-  </div>
+    <script>
+      /* ════════════════════════════════════════════
+         CONFIG & DATA LOADING
+      ════════════════════════════════════════════ */
+      const SHEET_ID = '1e37UZdk0jeajvytRMZarpXMeaV1ubb8eZPnfVT9jHkc';
+      const SALES_TAB = 'sales';
+      const ADS_TAB = 'ads';
 
-  <div class="footer">CK Printing Live Dashboard · ดึงข้อมูลจาก Google Sheet โดยตรง · ข้อมูลอัปเดตทุกครั้งที่เปิดหรือกด Refresh</div>
-</div>
+      // ต้นทุนสินค้า (จาก tab cost — ปรับจูนที่นี่หากราคาวัสดุเปลี่ยน)
+      const COST_MAP = {
+        'แก้วเก็บความเย็น TBL-11': 65,
+        'แก้วเก็บความเย็น TBL-12': 72,
+        'แก้วเก็บความเย็น TBL-13': 60,
+        'แก้วเก็บความเย็น TBL-13s': 60,
+        'แก้วเก็บความเย็น TBL-15': 75,
+        'แก้วเก็บความเย็น TBL-16': 87,
+        'แก้วเก็บความเย็น TBL-17': 75,
+        'แก้วเก็บความเย็น TBL-18': 77,
+        'แก้วเก็บความเย็น TBL-19': 73,
+        'หินรองแก้ว': 35,
+        'พิมพ์/เลเซอร์ขวดลูกค้า': 25,
+        'Fumalo Canvas': 40,
+        'Fumalo Linen': 35,
+        'Fumalo Selections': 35,
+      };
 
-<script>
-/* ════════════════════════════════════════════
-   CONFIG
-════════════════════════════════════════════ */
-const SHEET_ID  = '1e37UZdk0jeajvytRMZarpXMeaV1ubb8eZPnfVT9jHkc';
-const SHEET_TAB = 'sales'; // ชื่อ tab ใน Google Sheet
-// URL สำหรับดึง CSV จาก Google Sheet (ต้องตั้ง sheet เป็น public)
-const CSV_URL   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_TAB}`;
+      let ALL_SALES = [];
+      let ALL_ADS = [];
 
-// ต้นทุนสินค้า (ดึงจาก tab cost — อัปเดตเมื่อราคาเปลี่ยน)
-const COST_MAP = {
-  'แก้วเก็บความเย็น TBL-11': 65,
-  'แก้วเก็บความเย็น TBL-12': 72,
-  'แก้วเก็บความเย็น TBL-13': 60,
-  'แก้วเก็บความเย็น TBL-13s': 60,
-  'แก้วเก็บความเย็น TBL-15': 75,
-  'แก้วเก็บความเย็น TBL-16': 87,
-  'แก้วเก็บความเย็น TBL-17': 75,
-  'แก้วเก็บความเย็น TBL-18': 77,
-  'แก้วเก็บความเย็น TBL-19': 73,
-  'หินรองแก้ว': 35,
-  'พิมพ์/เลเซอร์ขวดลูกค้า': 25,
-  'Fumalo Canvas': 40,
-  'Fumalo Linen': 35,
-  'Fumalo Selections': 35,
-};
-// ถ้าไม่มีใน COST_MAP ใช้ default margin 50%
-const DEFAULT_MARGIN = 0.50;
+      const SALES_GID = '1122960245';
+      const ADS_GID = '1216239186';
 
-// Ad spend รายเดือน (จาก tab ads — hard-code น้อยกว่า เพราะ Meta ไม่มี public API)
-const AD_SPEND_BY_MONTH = {
-  'Jan26':3979,'Feb26':27320,'Mar26':20090,'Apr26':8552,
-  'Dec25':0,'Nov25':11245,'Oct25':22270,'Sep25':0,
-  'Aug25':0,'Jul25':0,'Jun25':0,'May25':0,'Apr25':0,
-  'Mar25':0,'Feb25':0,'Jan25':0,
-};
+      async function loadData() {
+        const d_msg = m => { d('loading-sub').textContent = m; console.log(m); };
+        d_msg('กำลังเชื่อมต่อข้อมูล...');
 
-/* ════════════════════════════════════════════
-   HELPERS
-════════════════════════════════════════════ */
-const CLR = {blue:'#2870c8',green:'#1a8c68',amber:'#a06010',red:'#c43030',purple:'#6655c8',teal:'#1d7d9e'};
-const charts = {};
-const d = id => document.getElementById(id);
-const fmt  = n => Math.round(n).toLocaleString('th-TH');
-const fmtB = n => '฿'+fmt(n);
-const pct  = n => (+n).toFixed(1)+'%';
-const destroyChart = id => { if(charts[id]){ charts[id].destroy(); delete charts[id]; } };
-const clr  = (v,g,a) => v>=g?'c-green':v>=a?'c-amber':'c-red';
+        const getUrl = gid => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}&t=${Date.now()}`;
 
-function parseThaiDate(str){
-  // Handles d/m/yyyy or d/m/yy
-  if(!str) return null;
-  const p = str.trim().split('/');
-  if(p.length!==3) return null;
-  let [d,m,y] = p.map(Number);
-  if(y<100) y+=2000;
-  return new Date(y, m-1, d);
-}
+        try {
+          d_msg('โหลดข้อมูลยอดขาย...');
+          const resSales = await fetch(getUrl(SALES_GID));
+          const txtSales = await resSales.text();
+          if (txtSales.includes('<!DOCTYPE html>')) throw new Error('Google ขอให้ Login หรือตั้งค่าแชร์ไม่ถูกต้อง');
+          ALL_SALES = parseSalesCSV(txtSales);
 
-function getMonthKey(dateStr){
-  const dt = parseThaiDate(dateStr);
-  if(!dt) return null;
-  const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return mn[dt.getMonth()]+(dt.getFullYear().toString().slice(2));
-}
+          d_msg('โหลดข้อมูลค่าโฆษณา...');
+          const resAds = await fetch(getUrl(ADS_GID));
+          const txtAds = await resAds.text();
+          if (!txtAds.includes('<!DOCTYPE html>')) {
+            ALL_ADS = parseAdsCSV(txtAds);
+          }
 
-function getCOGSper(product, revenue, qty){
-  if(!product) return revenue * (1-DEFAULT_MARGIN);
-  // exact match
-  if(COST_MAP[product]) return COST_MAP[product] * qty;
-  // fuzzy: strip prefix like "แก้วเก็บความเย็น "
-  for(const [k,v] of Object.entries(COST_MAP)){
-    if(product.includes(k) || k.includes(product)) return v * qty;
-  }
-  // check TBL number
-  const m = product.match(/TBL-(\d+)/i);
-  if(m){
-    const key = `แก้วเก็บความเย็น TBL-${m[1]}`;
-    if(COST_MAP[key]) return COST_MAP[key] * qty;
-  }
-  return revenue * (1-DEFAULT_MARGIN);
-}
+          d_msg('กำลังแสดงผล...');
+          d('sync-time').textContent = 'อัปเดต: ' + new Date().toLocaleTimeString();
+          d('loading-overlay').classList.add('hidden');
 
-function jobGroup(pt){
-  if(!pt) return 'ไม่ระบุ';
-  const u = pt.trim();
-  if(u==='Laser') return 'Laser';
-  if(['UV Print','Only White','Only Color','Both'].includes(u)) return 'UV Print';
-  if(u==='Sticker') return 'Sticker';
-  return 'ไม่ระบุ';
-}
+          // วาดกราฟ
+          render();
 
-/* ════════════════════════════════════════════
-   DATA LOADING
-════════════════════════════════════════════ */
-let ALL_ORDERS = [];
+        } catch (err) {
+          console.error(err);
+          d('loading-overlay').classList.add('hidden');
+          d('error-banner').style.display = 'block';
+          d('error-msg').textContent = 'ดึงข้อมูลไม่สำเร็จ: ' + err.message;
+        }
+      }
 
-async function loadSheet(){
-  d('loading-sub').textContent = 'กำลังเชื่อมต่อ Google Sheet...';
-  try {
-    const res = await fetch(CSV_URL);
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    d('loading-sub').textContent = 'กำลังประมวลผลข้อมูล...';
-    ALL_ORDERS = parseCSV(text);
-    d('sync-time').textContent = 'ดึงข้อมูลเมื่อ: '+new Date().toLocaleString('th-TH');
-    d('loading-overlay').classList.add('hidden');
-    render();
-  } catch(err){
-    // Sheet ไม่ public — fallback แจ้งผู้ใช้
-    d('loading-overlay').classList.add('hidden');
-    const eb = d('error-banner');
-    eb.style.display = 'block';
-    eb.innerHTML = `
-      <strong>⚠ ไม่สามารถดึงข้อมูลจาก Google Sheet ได้</strong><br>
-      Google Sheet ต้องตั้งค่าเป็น <strong>"Anyone with the link can view"</strong> ก่อนครับ<br>
-      <span style="font-size:11px;margin-top:4px;display:block">
-        วิธีตั้งค่า: เปิด Sheet → Share → Change to anyone with the link → Viewer → Done<br>
-        จากนั้นกด <a href="#" onclick="reloadData();return false;" style="color:var(--blue)">↻ Refresh</a> เพื่อโหลดใหม่
-      </span>
-    `;
-    console.error('Sheet load error:', err);
-  }
-}
+      function parseCSV(t) {
+        const rows = []; let row = []; let col = ""; let inQuotes = false;
+        for (let i = 0; i < t.length; i++) {
+          const char = t[i]; const next = t[i + 1];
+          if (inQuotes) {
+            if (char === '"' && next === '"') { col += '"'; i++; }
+            else if (char === '"') { inQuotes = false; }
+            else { col += char; }
+          } else {
+            if (char === '"') { inQuotes = true; }
+            else if (char === ',') { row.push(col.trim()); col = ""; }
+            else if (char === '\n' || char === '\r') {
+              if (char === '\r' && next === '\n') i++;
+              row.push(col.trim()); rows.push(row); row = []; col = "";
+            } else { col += char; }
+          }
+        }
+        if (col || row.length > 0) { row.push(col.trim()); rows.push(row); }
+        return rows;
+      }
 
-function parseCSV(text){
-  const lines = text.split('\n');
-  if(lines.length < 2) return [];
+      function normalizeDate(str) {
+        if (!str) return null;
+        // Handle any delimiter: slash, dash, or space
+        const p = str.split(/[\/\-\s]/).filter(x => x.length > 0);
+        if (p.length < 3) return null;
 
-  // Parse header — handle quoted fields
-  function splitCSV(line){
-    const result=[], re=/,(?=(?:[^"]*"[^"]*")*[^"]*$)/;
-    return line.split(re).map(f=>f.replace(/^"|"$/g,'').trim());
-  }
+        let d, m, y;
+        if (p[0].length === 4) {
+          // Format is YYYY-MM-DD
+          y = parseInt(p[0]);
+          m = parseInt(p[1]);
+          d = parseInt(p[2]);
+        } else {
+          // Format is DD/MM/YYYY or MM/DD/YYYY
+          d = parseInt(p[0].replace(/[^0-9]/g, ''));
+          m = parseInt(p[1].replace(/[^0-9]/g, ''));
+          y = parseInt(p[2].replace(/[^0-9]/g, ''));
+        }
 
-  const header = splitCSV(lines[0]);
-  const idx = {
-    date:    header.indexOf('Date'),
-    name:    header.indexOf('Name'),
-    section: header.indexOf('Section/Column'),
-    channel: header.indexOf('ช่องทาง'),
-    product: header.indexOf('Products'),
-    qty:     header.indexOf('จำนวน'),
-    revenue: header.indexOf('Revenue'),
-    printType: header.indexOf('การพิมพ์'),
-  };
+        if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
 
-  const SKIP_SEC  = new Set(['เคลม','งานอื่นๆ','yam to do list']);
-  const VALID_SEC = new Set(['ผลิตได้','กำลังผลิต','รอส่ง','ออเดอร์ใหม่ รอสรุปแบบ','ทำตัวอย่าง']);
+        // BE to AD logic
+        if (y > 2500) y -= 543;
+        if (y < 100) y += 2000;
 
-  const orders = [];
-  for(let i=1; i<lines.length; i++){
-    const cols = splitCSV(lines[i]);
-    if(cols.length < 10) continue;
+        // Smart swap if it looks like MM/DD/YYYY
+        if (m > 12 && d <= 12) { [d, m] = [m, d]; }
 
-    const sec  = (cols[idx.section]||'').trim();
-    const name = (cols[idx.name]||'').trim();
-    const revStr = (cols[idx.revenue]||'').replace(/,/g,'');
-    const qtyStr = (cols[idx.qty]||'').replace(/,/g,'');
+        // ISO Format for JS Date
+        return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      }
 
-    if(SKIP_SEC.has(sec.toLowerCase())) continue;
-    if(name.startsWith('ยกเลิก')) continue;
-    const isValid = VALID_SEC.has(sec) || /done$/i.test(sec);
-    if(!isValid) continue;
+      function parseSalesCSV(text) {
+        const rows = parseCSV(text);
+        if (rows.length < 1) return [];
+        const headerIdx = rows.findIndex(r => r.some(c => /date|วันที่/i.test(c)));
+        if (headerIdx === -1) return [];
+        const header = rows[headerIdx];
+        const idx = {
+          date: header.findIndex(h => /date|วันที่/i.test(h)),
+          name: header.findIndex(h => /name|ชื่อ/i.test(h)),
+          section: header.findIndex(h => /section|column/i.test(h)),
+          channel: header.findIndex(h => /channel|ช่องทาง/i.test(h)),
+          product: header.findIndex(h => /product|สินค้า/i.test(h)),
+          qty: header.findIndex(h => /จำนวน|qty/i.test(h)),
+          revenue: header.findIndex(h => /revenue|ยอดขาย/i.test(h)),
+          printType: header.findIndex(h => /การพิมพ์/i.test(h))
+        };
+        const orders = [];
+        for (let i = headerIdx + 1; i < rows.length; i++) {
+          const cols = rows[i]; if (cols.length < 5) continue;
+          const rev = parseFloat((cols[idx.revenue] || '0').replace(/[^0-9.-]/g, '')) || 0;
+          if (rev <= 0) continue;
+          const sec = cols[idx.section] || '';
+          const name = cols[idx.name] || '';
 
-    const revenue = parseFloat(revStr);
-    const qty     = parseInt(qtyStr)||0;
-    if(!revenue || revenue<=0) continue;
+          let rawDate = cols[idx.date] || '';
 
-    const product   = (cols[idx.product]||'').trim();
-    const channel   = (cols[idx.channel]||'').trim();
-    const printType = jobGroup((cols[idx.printType]||'').trim());
-    const dateStr   = (cols[idx.date]||'').trim();
-    const cogs      = getCOGSper(product, revenue, qty);
+          const qty = parseInt((cols[idx.qty] || '1').replace(/[^0-9]/g, '')) || 1;
+          const prod = cols[idx.product] || '';
+          let costPer = 70;
+          if (COST_MAP[prod]) costPer = COST_MAP[prod];
+          else { for (const [k, v] of Object.entries(COST_MAP)) { if (prod.includes(k)) { costPer = v; break; } } }
+          orders.push({
+            date: normalizeDate(rawDate), product: prod, qty, revenue: rev,
+            channel: cols[idx.channel] || 'Other', costPer, section: sec, printType: cols[idx.printType] || 'ไม่ระบุ'
+          });
+        }
+        return orders;
+      }
 
-    orders.push({ date:dateStr, name, section:sec, channel, product, qty, revenue, cogs, printType });
-  }
-  return orders;
-}
+      function parseAdsCSV(text) {
+        const rows = parseCSV(text);
+        if (rows.length < 1) return [];
+        const headerIdx = rows.findIndex(r => r.some(c => /date|วันที่/i.test(c)));
+        const header = headerIdx !== -1 ? rows[headerIdx] : [];
+        const dbg = (m) => {
+          const l = document.getElementById('debug-log');
+          if (l) l.innerHTML += `<div>[Ads] ${m}</div>`;
+        };
+        dbg(`Headers found: ${JSON.stringify(header)}`);
+        const idx = {
+          date: header.findIndex(h => /date|วันที่/i.test(h)),
+          spend: header.findIndex(h => /spend|cost|ค่าโฆษณา|amount/i.test(h)),
+          leads: header.findIndex(h => /leads|คนทัก|messaging|contacts/i.test(h))
+        };
+        dbg(`Mapping: DateCol=${idx.date}, SpendCol=${idx.spend}`);
+        const dateCol = idx.date !== -1 ? idx.date : 0;
+        const spendCol = idx.spend !== -1 ? idx.spend : 3;
+        const ads = [];
+        for (let i = (headerIdx === -1 ? 0 : headerIdx + 1); i < rows.length; i++) {
+          const cols = rows[i]; if (cols.length < 2) continue;
+          const dtRaw = cols[dateCol]; if (!dtRaw) continue;
+          const sp = parseFloat((cols[spendCol] || '0').replace(/[^0-9.-]/g, '')) || 0;
+          const leadsCol = idx.leads !== -1 ? idx.leads : 8;
+          const ld = parseInt((cols[leadsCol] || '0').replace(/[^0-9]/g, '')) || 0;
+          const finalDate = normalizeDate(dtRaw);
+          if (finalDate) ads.push({ date: finalDate, spend: sp, leads: ld });
+        }
+        dbg(`Final count: ${ads.length} record(s) loaded.`);
+        return ads;
+      }
 
-async function reloadData(){
-  d('loading-overlay').classList.remove('hidden');
-  d('error-banner').style.display='none';
-  await loadSheet();
-}
+      async function reloadData() {
+        d('loading-overlay').classList.remove('hidden');
+        await loadData();
+      }
+      /* ════════════════════════════════════════════
+         HELPERS
+      ════════════════════════════════════════════ */
+      const GM = 0.584;
+      const CLR = { blue: '#2870c8', green: '#1a8c68', amber: '#a06010', red: '#c43030', purple: '#6655c8', gray: '#888780' };
+      const charts = {};
+      function d(id) { return document.getElementById(id); }
+      function fmt(n) { return Math.round(n).toLocaleString('th-TH'); }
+      function fmtB(n) { return '฿' + fmt(n); }
+      function pct(n) { return n.toFixed(1) + '%'; }
+      function clr(v, g, a) { return v >= g ? 'c-green' : v >= a ? 'c-amber' : 'c-red'; }
+      function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
 
-/* ════════════════════════════════════════════
-   FILTERING
-════════════════════════════════════════════ */
-function filterOrders(){
-  const from    = new Date(d('dateFrom').value);
-  const to      = new Date(d('dateTo').value); to.setHours(23,59,59);
-  const validOnly = d('validOnlyToggle').checked;
+      // Helper functions for filtering and status display
+      function isValidOrder(o) {
+        if (!o || !o.section) return false;
+        const validSections = ['ผลิตได้', 'กำลังผลิต', 'รอส่ง', 'ออเดอร์ใหม่ รอสรุปแบบ', 'ทำตัวอย่าง'];
+        return validSections.includes(o.section) || /done$/i.test(o.section);
+      }
 
-  return ALL_ORDERS.filter(o=>{
-    const dt = parseThaiDate(o.date);
-    if(!dt) return false;
-    if(dt<from || dt>to) return false;
-    return true; // already filtered invalid on parse
-  });
-}
+      function isDone(o) {
+        return o && /done$/i.test(o.section);
+      }
 
-function aggregateByMonth(orders){
-  const sMap={}, aMap={};
-  orders.forEach(o=>{
-    const k = getMonthKey(o.date);
-    if(!k) return;
-    if(!sMap[k]) sMap[k]={rev:0,cogs:0,orders:0,qty:0,products:{},productOrders:{}};
-    sMap[k].rev    += o.revenue;
-    sMap[k].cogs   += o.cogs;
-    sMap[k].orders += 1;
-    sMap[k].qty    += o.qty;
-    const p = o.product||'อื่นๆ';
-    sMap[k].products[p]      = (sMap[k].products[p]||0)+o.qty;
-    sMap[k].productOrders[p] = (sMap[k].productOrders[p]||0)+1;
-  });
-  // ad spend
-  Object.keys(AD_SPEND_BY_MONTH).forEach(k=>{ aMap[k]={spend:AD_SPEND_BY_MONTH[k]}; });
+      function filterData(from, to) {
+        const f = new Date(from), t = new Date(to); t.setHours(23, 59, 59);
+        const validOnly = document.getElementById('doneOnlyToggle')?.checked !== false;
+        return {
+          sales: ALL_SALES.filter(d => {
+            if (!d.date) return false;
+            const dt = new Date(d.date);
 
-  const toDate = s=>{
-    const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    return new Date('20'+s.slice(-2)+'-'+(mn.indexOf(s.slice(0,-2))+1).toString().padStart(2,'0')+'-01');
-  };
-  const keys = [...new Set([...Object.keys(sMap),...Object.keys(aMap)])].sort((a,b)=>toDate(a)-toDate(b));
-  return {keys,sMap,aMap};
-}
+            if (!(dt >= f && dt <= t && d.revenue > 0)) return false;
+            if (validOnly && !isValidOrder(d)) return false;
+            return true;
+          }),
+          ads: ALL_ADS.filter(d => {
+            const dt = new Date(d.date);
+            return dt >= f && dt <= t;
+          })
+        };
+      }
 
-/* ════════════════════════════════════════════
-   RENDER
-════════════════════════════════════════════ */
-let currentOrders=[], currentTab='verdict';
+      function getMonthKey(dateStr) {
+        if (!dateStr) return 'Unknown';
+        // dateStr is now YYYY-MM-DD
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return 'Invalid';
+        const mn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return mn[d.getMonth()] + (d.getFullYear().toString().slice(2));
+      }
 
-function render(){
-  currentOrders = filterOrders();
-  const orders  = currentOrders;
-  const totalRev  = orders.reduce((s,o)=>s+o.revenue, 0);
-  const totalCOGS = orders.reduce((s,o)=>s+o.cogs, 0);
-  const grossP    = totalRev - totalCOGS;
-  const byM       = aggregateByMonth(orders);
-  const totalAds  = Object.values(byM.aMap).reduce((s,v)=>s+v.spend,0);
-  const netP      = grossP - totalAds;
-  const netM      = totalRev>0?netP/totalRev*100:0;
-  const roas      = totalAds>0?totalRev/totalAds:0;
-  const totalLeads= 2847; // from ads tab — update periodically
-  const cpl       = totalLeads>0?totalAds/totalLeads:0;
-  const monthCount= Math.max(1,byM.keys.length);
+      function aggregateByMonth(sales, ads) {
+        const sMap = {}, aMap = {};
+        sales.forEach(s => {
+          const k = getMonthKey(s.date);
+          if (!sMap[k]) sMap[k] = { rev: 0, cogs: 0, orders: 0, qty: 0, products: {} };
+          sMap[k].rev += s.revenue;
+          sMap[k].cogs += s.qty * s.costPer;
+          sMap[k].orders += 1;
+          sMap[k].qty += s.qty;
+          const prod = s.product || 'อื่นๆ';
+          if (!sMap[k].productOrders) sMap[k].productOrders = {};
+          sMap[k].products[prod] = (sMap[k].products[prod] || 0) + s.qty;
+          sMap[k].productOrders[prod] = (sMap[k].productOrders[prod] || 0) + 1;
+        });
+        ads.forEach(a => {
+          const k = getMonthKey(a.date);
+          if (!aMap[k]) aMap[k] = { spend: 0, leads: 0 };
+          aMap[k].spend += a.spend; aMap[k].leads += a.leads;
+        });
+        const toSortDate = s => {
+          const mn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          return new Date('20' + s.slice(-2) + '-' + (mn.indexOf(s.slice(0, -2)) + 1).toString().padStart(2, '0') + '-01');
+        };
+        const keys = [...new Set([...Object.keys(sMap), ...Object.keys(aMap)])].sort((a, b) => toSortDate(a) - toSortDate(b));
+        return { keys, sMap, aMap };
+      }
 
-  d('filterSummary').textContent = `${orders.length} ออเดอร์ · ฿${fmt(totalRev)}`;
+      function computeStats(from, to) {
+        const { sales, ads } = filterData(from, to);
+        const totalRev = sales.reduce((s, r) => s + r.revenue, 0);
+        const totalCOGS = sales.reduce((s, r) => s + r.qty * r.costPer, 0);
+        const grossProfit = totalRev - totalCOGS;
+        const totalAds = ads.reduce((s, a) => s + a.spend, 0);
+        const netProfit = grossProfit - totalAds;
+        const totalLeads = ads.reduce((s, a) => s + a.leads, 0);
+        const byMonth = aggregateByMonth(sales, ads);
+        const monthCount = Math.max(1, byMonth.keys.length);
+        const dayCount = Math.round((new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24)) + 1;
+        return {
+          totalRev, totalCOGS, grossProfit, totalAds, netProfit, totalLeads,
+          salesCount: sales.length, byMonth, monthCount, dayCount, sales, ads
+        };
+      }
 
-  if(currentTab==='verdict') renderVerdict({totalRev,totalCOGS,grossP,totalAds,netP,netM,roas,cpl,totalLeads,orders,byM,monthCount});
-  else if(currentTab==='waterfall') renderWaterfall({totalRev,totalCOGS,grossP,totalAds,netP,monthCount});
-  else if(currentTab==='trend') renderTrend({orders,byM,totalRev});
-  else if(currentTab==='product') renderProduct(orders);
-  else if(currentTab==='jobtype') renderJobtype(orders);
-  else if(currentTab==='orders') renderOrders();
-}
+      /* ════════════════════════════════════════════
+         RENDER FUNCTIONS
+      ════════════════════════════════════════════ */
+      function renderVerdict(s) {
+        const netM = s.totalRev > 0 ? (s.netProfit / s.totalRev * 100) : 0;
+        const roas = s.totalAds > 0 ? s.totalRev / s.totalAds : 0;
+        const good = netM >= 30 && roas >= 2.5;
 
-function onFilterChange(){
-  document.querySelectorAll('.qb').forEach(b=>b.classList.remove('active'));
-  render();
-}
+        const box = d('verdict-box');
+        box.className = 'verdict-box ' + (good ? 'verdict-green' : 'verdict-amber');
+        d('verdict-icon').textContent = good ? '✓' : '⚠';
+        d('verdict-title').textContent = good
+          ? 'ควรลงทุนต่อ — ตัวเลขยังดีในช่วงนี้'
+          : 'ควรระวัง — ตรวจสอบประสิทธิภาพในช่วงนี้';
+        d('verdict-body').textContent = 'Net Margin ' + pct(netM) + ' · ROAS ' + roas.toFixed(1) + 'x · '
+          + (good ? 'ทั้งสองตัวชี้วัดหลักอยู่ในเกณฑ์ดี ควรรักษาระดับนี้ไว้'
+            : 'Net Margin หรือ ROAS ต่ำกว่าเกณฑ์ ควรทบทวนค่าใช้จ่ายโฆษณา');
 
-function setQuick(q,btn){
-  const today = new Date();
-  const fmt2  = d => d.toISOString().slice(0,10);
-  let f,t=fmt2(today);
-  if(q==='ytd')   { f=`${today.getFullYear()}-01-01`; }
-  else if(q==='all')    { f='2021-01-01'; }
-  else if(q==='q1_26')  { f='2026-01-01'; t='2026-03-31'; }
-  else if(q==='mar_apr'){ f='2026-03-01'; t='2026-04-30'; }
-  else if(q==='last30') { const dt=new Date(today);dt.setDate(dt.getDate()-30);f=fmt2(dt); }
-  else if(q==='last90') { const dt=new Date(today);dt.setDate(dt.getDate()-90);f=fmt2(dt); }
-  d('dateFrom').value=f; d('dateTo').value=t;
-  document.querySelectorAll('.qb').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  render();
-}
+        const vm = d('verdict-metrics'); vm.innerHTML = '';
+        const cpl = s.totalLeads > 0 ? s.totalAds / s.totalLeads : 0;
+        [
+          { label: 'Revenue', val: fmtB(s.totalRev), sub: 'ในช่วงที่เลือก', c: 'c-blue' },
+          { label: 'Ad Spend', val: fmtB(s.totalAds), sub: 'ค่าโฆษณา Meta' },
+          { label: 'Gross Profit', val: fmtB(s.grossProfit), sub: 'Margin ' + pct(s.totalRev > 0 ? s.grossProfit / s.totalRev * 100 : 0), c: 'c-green' },
+          { label: 'Net Profit', val: fmtB(s.netProfit), sub: 'หลังหักโฆษณา', c: s.netProfit > 0 ? 'c-green' : 'c-red' },
+          { label: 'Net Margin', val: pct(netM), sub: 'เป้า ≥30%', c: clr(netM, 30, 15) },
+          { label: 'ROAS', val: roas.toFixed(1) + 'x', sub: 'Breakeven 2.6x', c: clr(roas, 2.6, 1.5) },
+          { label: 'New Leads', val: fmt(s.totalLeads), sub: 'Messaging contacts' },
+          { label: 'CPL เฉลี่ย', val: s.totalLeads > 0 ? fmtB(cpl) : '—', sub: 'Cost per lead', c: cpl > 0 && cpl < 100 ? 'c-green' : 'c-amber' },
+        ].forEach(c => {
+          vm.innerHTML += `<div class="mc"><div class="mc-label">${c.label}</div><div class="mc-val ${c.c || ''}">${c.val}</div><div class="mc-sub">${c.sub}</div></div>`;
+        });
 
-/* ── Verdict ── */
-function renderVerdict(s){
-  const good = s.netM>=30 && s.roas>=2.5;
-  const box  = d('verdict-box');
-  box.className = 'verdict-box '+(good?'verdict-green':'verdict-amber');
-  d('verdict-icon').textContent  = good?'✓':'⚠';
-  d('verdict-title').textContent = good?'ควรลงทุนต่อ — ตัวเลขดีในช่วงนี้':'ควรระวัง — ตรวจสอบประสิทธิภาพ';
-  d('verdict-body').textContent  = `Net Margin ${pct(s.netM)} · ROAS ${s.roas.toFixed(1)}x · ${good?'ทั้งสองตัวชี้วัดหลักผ่านเกณฑ์':'Net Margin หรือ ROAS ต่ำกว่าเกณฑ์ ควรทบทวน'}`;
+        const profScore = Math.min(100, Math.max(0, netM * 2));
+        const adEff = Math.min(100, roas >= 5 ? 85 : roas >= 3 ? 70 : roas >= 2 ? 50 : 30);
+        const leadQ = s.totalLeads > 0 ? Math.min(100, Math.max(20, 100 - (cpl / 5))) : 50;
+        const overall = Math.round((profScore + adEff + leadQ) / 3);
 
-  const vm=d('verdict-metrics'); vm.innerHTML='';
-  [
-    {label:'Revenue',val:fmtB(s.totalRev),c:'c-blue'},
-    {label:'Gross Profit',val:fmtB(s.grossP),sub:pct(s.totalRev>0?s.grossP/s.totalRev*100:0)+' margin',c:'c-green'},
-    {label:'Net Profit',val:fmtB(s.netP),c:s.netP>0?'c-green':'c-red'},
-    {label:'Net Margin',val:pct(s.netM),sub:'เป้า ≥30%',c:clr(s.netM,30,15)},
-    {label:'ROAS',val:s.roas.toFixed(1)+'x',sub:'Breakeven 2.6x',c:clr(s.roas,2.6,1.5)},
-    {label:'Ad Spend',val:fmtB(s.totalAds),c:'c-amber'},
-    {label:'Leads',val:fmt(s.totalLeads),c:''},
-    {label:'CPL เฉลี่ย',val:s.totalLeads>0?fmtB(s.cpl):'—',c:s.cpl<100?'c-green':'c-amber'},
-  ].forEach(c=>{
-    vm.innerHTML+=`<div class="mc"><div class="mc-label">${c.label}</div><div class="mc-val ${c.c||''}">${c.val}</div>${c.sub?`<div class="mc-sub">${c.sub}</div>`:''}</div>`;
-  });
-
-  const profScore = Math.min(100,Math.max(0,s.netM*2));
-  const adEff     = Math.min(100,s.roas>=5?85:s.roas>=3?70:s.roas>=2?50:30);
-  const leadQ     = s.cpl>0?Math.min(100,Math.max(20,100-(s.cpl/5))):50;
-  const overall   = Math.round((profScore+adEff+leadQ)/3);
-  const gr=d('gauge-row'); gr.innerHTML='';
-  [{label:'Profitability',val:Math.round(profScore),sub:'Net Margin '+pct(s.netM)},
-   {label:'Ads Efficiency',val:adEff,sub:'ROAS '+s.roas.toFixed(1)+'x'},
-   {label:'Lead Quality',val:Math.round(leadQ),sub:'CPL '+fmtB(s.cpl)},
-   {label:'Overall Score',val:overall,sub:overall>=65?'ลงทุนต่อได้':overall>=45?'ระมัดระวัง':'ทบทวนใหม่'},
-  ].forEach(g=>{
-    const col=g.val>=65?CLR.green:g.val>=45?CLR.amber:CLR.red;
-    gr.innerHTML+=`<div class="gauge-card"><div style="font-size:11px;color:var(--text2)">${g.label}</div><div style="font-size:18px;font-weight:600;color:${col}">${g.val}<span style="font-size:12px">/100</span></div><div class="gauge-bar-wrap"><div class="gauge-bar" style="width:${g.val}%;background:${col}"></div></div><div style="font-size:10px;color:var(--text3)">${g.sub}</div></div>`;
-  });
-
-  const sc=d('signal-cards'); sc.innerHTML='';
-  [{good:s.netM>=30,title:'Net Margin',metric:pct(s.netM),body:s.netM>=30?'กำไรสุทธิดี':'ต่ำกว่า 30% ลองลดต้นทุนหรือเพิ่มราคา'},
-   {good:s.roas>=2.6,title:'ROAS',metric:s.roas.toFixed(2)+'x',body:s.roas>=2.6?'ผลตอบแทนโฆษณาคุ้มค่า':'ต่ำกว่า breakeven 2.6x'},
-   {good:s.totalAds>0&&(s.totalAds/s.totalRev)<0.2,title:'Ad Spend %',metric:s.totalRev>0?pct(s.totalAds/s.totalRev*100):'—',body:'ค่าโฆษณาเทียบยอดขาย ควรต่ำกว่า 20%'},
-   {good:s.orders.length>5,title:'จำนวนออเดอร์',metric:s.orders.length+' ออเดอร์',body:'ออเดอร์ในช่วงที่เลือก'},
-  ].forEach(sg=>{
-    sc.innerHTML+=`<div class="signal-card"><div class="signal-pill ${sg.good?'pill-green':'pill-amber'}">${sg.good?'✓ ดี':'⚠ ระวัง'}</div><div style="font-size:13px;font-weight:600;margin-bottom:3px">${sg.title}</div><div style="font-size:18px;font-weight:600;color:var(--${sg.good?'green':'amber'})">${sg.metric}</div><div style="font-size:12px;color:var(--text2)">${sg.body}</div></div>`;
-  });
-}
-
-/* ── Waterfall ── */
-function renderWaterfall(s){
-  destroyChart('wfChart');
-  const R=s.totalRev,C=s.totalCOGS,G=s.grossP,A=s.totalAds,N=s.netP;
-  const labels=['Revenue','− COGS','Gross Profit','− Ad Spend','Net Profit'];
-  const vals=[R,C,G,A,N];
-  const bgC=[CLR.blue,CLR.red,CLR.green,CLR.amber,N>0?CLR.green:CLR.red];
-  charts['wfChart']=new Chart(d('wfChart'),{
-    type:'bar',data:{labels,datasets:[{data:vals.map(Math.abs),backgroundColor:bgC,borderWidth:0,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const v=vals[ctx.dataIndex];return(v<0?'−':'')+'฿'+Math.abs(Math.round(v)).toLocaleString();}}}},
-    scales:{x:{ticks:{font:{size:11}},grid:{display:false}},y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K',font:{size:10}}}}}
-  });
-
-  const wm=d('wf-metrics'); wm.innerHTML='';
-  [{label:'Revenue',val:fmtB(R),c:'c-blue'},{label:'− COGS',val:'−'+fmtB(C),c:'c-red'},
-   {label:'Gross Profit',val:fmtB(G),sub:pct(R>0?G/R*100:0),c:'c-green'},
-   {label:'− Ad Spend',val:'−'+fmtB(A),c:'c-amber'},
-   {label:'Net Profit',val:fmtB(N),sub:R>0?pct(N/R*100):'',c:N>=0?'c-green':'c-red'}
-  ].forEach(c=>{
-    wm.innerHTML+=`<div class="mc"><div class="mc-label">${c.label}</div><div class="mc-val ${c.c}">${c.val}</div>${c.sub?`<div class="mc-sub">${c.sub}</div>`:''}</div>`;
-  });
-
-  const mAdsAvg=s.totalAds/s.monthCount;
-  const beRev=mAdsAvg/0.584;
-  const revAvg=s.totalRev/s.monthCount;
-  d('be-card').innerHTML=`<div style="font-size:13px;font-weight:600;margin-bottom:10px">Breakeven Analysis</div>
-    <div class="be-grid">
-      <div><div style="font-size:11px;color:var(--text2)">Ad Spend/เดือน</div><div style="font-size:16px;font-weight:600">${fmtB(mAdsAvg)}</div></div>
-      <div><div style="font-size:11px;color:var(--text2)">ยอดขาย breakeven</div><div style="font-size:16px;font-weight:600;color:var(--green)">${fmtB(beRev)}</div></div>
-      <div><div style="font-size:11px;color:var(--text2)">ยอดขายจริง/เดือน</div><div style="font-size:16px;font-weight:600;color:var(--green)">${fmtB(revAvg)}</div></div>
-      <div><div style="font-size:11px;color:var(--text2)">สูงกว่า breakeven</div><div style="font-size:16px;font-weight:600;color:var(--green)">${beRev>0?(revAvg/beRev).toFixed(1)+'x':'—'}</div></div>
+        const gr = d('gauge-row'); gr.innerHTML = '';
+        [
+          { label: 'Profitability', val: Math.round(profScore), sub: 'Net Margin ' + pct(netM) },
+          { label: 'Ads Efficiency', val: adEff, sub: 'ROAS ' + roas.toFixed(1) + 'x' },
+          { label: 'Lead Quality', val: Math.round(leadQ), sub: s.totalLeads > 0 ? 'CPL ' + fmtB(cpl) : 'ไม่มีข้อมูล' },
+          { label: 'Overall Score', val: overall, sub: overall >= 65 ? 'ลงทุนต่อได้' : overall >= 45 ? 'ระมัดระวัง' : 'ทบทวนใหม่' },
+        ].forEach(g => {
+          const col = g.val >= 65 ? CLR.green : g.val >= 45 ? CLR.amber : CLR.red;
+          gr.innerHTML += `<div class="gauge-card">
+      <div class="gauge-label">${g.label}</div>
+      <div class="gauge-val" style="color:${col}">${g.val}<span style="font-size:13px">/100</span></div>
+      <div class="gauge-bar-wrap"><div class="gauge-bar" style="width:${g.val}%;background:${col}"></div></div>
+      <div class="gauge-sub">${g.sub}</div>
     </div>`;
-}
+        });
 
-/* ── Trend ── */
-function renderTrend({orders,byM}){
-  destroyChart('trendChart'); destroyChart('marginChart'); destroyChart('orderVolumeChart'); destroyChart('productMixChart');
-  const {keys,sMap,aMap}=byM;
-  const mR    = keys.map(k=>Math.round((sMap[k]||{rev:0}).rev));
-  const mCOGS = keys.map(k=>Math.round((sMap[k]||{cogs:0}).cogs));
-  const mA    = keys.map(k=>Math.round((aMap[k]||{spend:0}).spend));
-  const mN    = mR.map((r,i)=>Math.round(r-mCOGS[i]-mA[i]));
-  const mNP   = mR.map((r,i)=>r>0?+((mN[i]/r)*100).toFixed(1):0);
-  const mOrd  = keys.map(k=>(sMap[k]||{orders:0}).orders);
-  const mQty  = keys.map(k=>(sMap[k]||{qty:0}).qty);
+        const sc = d('signal-cards'); sc.innerHTML = '';
+        [
+          { good: netM >= 30, title: 'Net Margin', metric: pct(netM), body: netM >= 30 ? 'กำไรสุทธิดี ควรรักษาระดับนี้' : 'Net Margin ต่ำกว่า 30% ลองลดต้นทุนหรือเพิ่มราคา' },
+          { good: roas >= 2.6, title: 'ROAS', metric: roas.toFixed(2) + 'x', body: roas >= 2.6 ? 'ผลตอบแทนโฆษณาคุ้มค่า' : 'ROAS ต่ำกว่า breakeven ทบทวนงบโฆษณา' },
+          { good: s.totalLeads > 30, title: 'Lead Volume', metric: fmt(s.totalLeads) + ' leads', body: s.totalLeads > 30 ? 'จำนวน leads เพียงพอ' : 'ข้อมูล leads น้อย ขยายช่วงวันที่' },
+          { good: s.totalAds > 0 && (s.totalAds / s.totalRev) < 0.2, title: 'Ad Spend %', metric: s.totalRev > 0 ? pct(s.totalAds / s.totalRev * 100) : '—', body: 'ค่าโฆษณาเทียบยอดขาย ควรต่ำกว่า 20%' },
+        ].forEach(sg => {
+          const pillCls = sg.good ? 'pill-green' : 'pill-amber';
+          const metCls = sg.good ? 'c-green' : 'c-amber';
+          sc.innerHTML += `<div class="signal-card">
+      <div class="signal-pill ${pillCls}">${sg.good ? 'สัญญาณดี' : 'ต้องระวัง'}</div>
+      <div class="signal-title">${sg.title}</div>
+      <div class="signal-metric ${metCls}">${sg.metric}</div>
+      <div class="signal-body">${sg.body}</div>
+    </div>`;
+        });
+      }
 
-  // Order metrics
-  const tom=d('trend-order-metrics'); tom.innerHTML='';
-  const totalOrders=orders.length, totalQty=orders.reduce((s,o)=>s+o.qty,0);
-  [{label:'จำนวนออเดอร์รวม',val:totalOrders+' ออเดอร์',c:'c-blue'},
-   {label:'จำนวนชิ้นรวม',val:fmt(totalQty)+' ชิ้น',c:'c-green'},
-   {label:'เฉลี่ยชิ้น/ออเดอร์',val:totalOrders>0?(totalQty/totalOrders).toFixed(1)+' ชิ้น':'—'},
-   {label:'เฉลี่ย Revenue/ออเดอร์',val:totalOrders>0?fmtB(orders.reduce((s,o)=>s+o.revenue,0)/totalOrders):'—'},
-  ].forEach(c=>{
-    tom.innerHTML+=`<div class="mc"><div class="mc-label">${c.label}</div><div class="mc-val ${c.c||''}">${c.val}</div></div>`;
-  });
+      function renderUnit(s) {
+        const vm = d('unit-metrics'); vm.innerHTML = '';
+        const aov = s.salesCount > 0 ? s.totalRev / s.salesCount : 0;
+        const agp = s.salesCount > 0 ? s.grossProfit / s.salesCount : 0;
+        const adPct = s.totalRev > 0 ? (s.totalAds / s.totalRev * 100) : 0;
+        [
+          { label: 'Avg Order Value', val: fmtB(aov), sub: 'ต่อออเดอร์' },
+          { label: 'Avg Gross Profit/Order', val: fmtB(agp), sub: 'หลังหักต้นทุนสินค้า', c: 'c-green' },
+          { label: 'Breakeven ROAS', val: (1 / GM).toFixed(2) + 'x', sub: 'ต่ำกว่านี้ขาดทุน' },
+          { label: 'Max CPL ที่ยังคุ้ม', val: fmtB(agp * 0.1), sub: '~10% ของ Gross Profit/Order', c: 'c-amber' },
+          { label: 'Ad Spend % of Revenue', val: pct(adPct), sub: 'ควรต่ำกว่า 20%', c: adPct < 20 ? 'c-green' : 'c-red' },
+          { label: 'จำนวนออเดอร์', val: s.salesCount + ' รายการ', sub: 'ที่มีข้อมูลราคา' },
+        ].forEach(c => {
+          vm.innerHTML += `<div class="mc"><div class="mc-label">${c.label}</div><div class="mc-val ${c.c || ''}">${c.val}</div><div class="mc-sub">${c.sub}</div></div>`;
+        });
 
-  charts['trendChart']=new Chart(d('trendChart'),{type:'line',data:{labels:keys,datasets:[
-    {label:'Revenue',data:mR,borderColor:CLR.blue,backgroundColor:CLR.blue+'15',fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:CLR.blue},
-    {label:'Net Profit',data:mN,borderColor:CLR.green,backgroundColor:CLR.green+'10',fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:CLR.green,borderDash:[4,3]},
-    {label:'Ad Spend',data:mA,borderColor:CLR.amber,backgroundColor:'transparent',tension:0.3,pointRadius:3,pointBackgroundColor:CLR.amber,borderDash:[2,4]}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K',font:{size:10}}}}}});
+        const mAdsAvg = s.totalAds / s.monthCount;
+        const beRev = GM > 0 ? mAdsAvg / GM : 0;
+        const revAvg = s.totalRev / s.monthCount;
+        const bc = d('be-card');
+        bc.innerHTML = `<div class="be-title">Breakeven Analysis</div>
+    <div class="be-grid">
+      <div><div class="be-item-label">Ad Spend/เดือน (เฉลี่ย)</div><div class="be-item-val">${fmtB(mAdsAvg)}</div></div>
+      <div><div class="be-item-label">Gross Margin</div><div class="be-item-val">${pct(GM * 100)}</div></div>
+      <div><div class="be-item-label">ยอดขาย breakeven/เดือน</div><div class="be-item-val c-green">${fmtB(beRev)}</div></div>
+      <div><div class="be-item-label">ยอดขายจริง/เดือน</div><div class="be-item-val c-green">${fmtB(revAvg)}</div></div>
+    </div>
+    <div class="be-body">ต้องขายแค่ <strong>${fmtB(beRev)}/เดือน</strong> ก็คืนทุนโฆษณา · ยอดขายจริง <strong style="color:var(--green)">${fmtB(revAvg)}/เดือน</strong>${revAvg > 0 && beRev > 0 ? ' — สูงกว่า breakeven ' + (revAvg / beRev).toFixed(1) + ' เท่า' : ''}</div>`;
 
-  charts['marginChart']=new Chart(d('marginChart'),{type:'bar',data:{labels:keys,datasets:[{data:mNP,backgroundColor:mNP.map(v=>v>30?CLR.green+'bb':v>0?CLR.amber+'bb':CLR.red+'bb'),borderWidth:0,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{ticks:{callback:v=>v+'%',font:{size:10}}}}}});
+        destroyChart('effChart');
+        const { keys, sMap, aMap } = s.byMonth;
+        const mR = keys.map(k => Math.round((sMap[k] || { rev: 0 }).rev));
+        const mA = keys.map(k => Math.round((aMap[k] || { spend: 0 }).spend));
+        const mG = mR.map(r => Math.round(r * GM));
+        const mROAS = keys.map((_, i) => mA[i] > 0 ? +(mG[i] / mA[i]).toFixed(2) : null);
+        charts['effChart'] = new Chart(d('effChart'), {
+          type: 'bar', data: {
+            labels: keys, datasets: [
+              { label: 'Ad Spend', data: mA, backgroundColor: CLR.blue + '99', yAxisID: 'y' },
+              { label: 'Gross Profit', data: mG, backgroundColor: CLR.green + '99', yAxisID: 'y' },
+              { label: 'ROAS', data: mROAS, type: 'line', borderColor: CLR.purple, backgroundColor: 'transparent', pointRadius: 4, pointBackgroundColor: CLR.purple, yAxisID: 'y1', borderDash: [3, 3] }
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
+              x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+              y: { ticks: { callback: v => '฿' + Math.round(v / 1000) + 'K', font: { size: 10 } } },
+              y1: { position: 'right', ticks: { callback: v => v + 'x', font: { size: 10 } }, grid: { display: false } }
+            }
+          }
+        });
+      }
 
-  const mAvgQPO=keys.map((_,i)=>mOrd[i]>0?(mQty[i]/mOrd[i]).toFixed(1):0);
-  charts['orderVolumeChart']=new Chart(d('orderVolumeChart'),{type:'bar',data:{labels:keys,datasets:[
-    {label:'ออเดอร์',data:mOrd,backgroundColor:CLR.blue+'99',borderWidth:0,borderRadius:4,yAxisID:'y'},
-    {label:'ชิ้น',data:mQty,type:'line',borderColor:CLR.green,backgroundColor:'transparent',pointRadius:5,pointBackgroundColor:CLR.green,borderWidth:2,tension:0.3,yAxisID:'y1'}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterBody:ctx=>{const i=ctx[0].dataIndex;return['──────────','📦 ออเดอร์: '+mOrd[i],'🧴 ชิ้น: '+mQty[i].toLocaleString(),'📊 เฉลี่ย: '+mAvgQPO[i]+' ชิ้น/ออเดอร์'];}}}},scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{ticks:{font:{size:10}}},y1:{position:'right',ticks:{font:{size:10}},grid:{display:false}}}}});
+      function renderWaterfall(s) {
+        destroyChart('wfChart');
+        const R = s.totalRev, C = s.totalCOGS, G = s.grossProfit, A = s.totalAds, N = s.netProfit;
+        const labels = ['Revenue', '− COGS', 'Gross Profit', '− Ad Spend', 'Net Profit'];
+        const vals = [R, C, G, A, N];
+        const bgC = [CLR.blue, CLR.red, CLR.green, CLR.amber, N > 0 ? CLR.green : CLR.red];
+        charts['wfChart'] = new Chart(d('wfChart'), {
+          type: 'bar', data: { labels, datasets: [{ data: vals.map(Math.abs), backgroundColor: bgC, borderWidth: 0, borderRadius: 4 }] },
+          options: {
+            responsive: true, maintainAspectRatio: false, plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: ctx => { const v = vals[ctx.dataIndex]; return (v < 0 ? '−' : '') + '฿' + Math.abs(Math.round(v)).toLocaleString(); } } }
+            },
+            scales: { x: { ticks: { font: { size: 11 } }, grid: { display: false } }, y: { ticks: { callback: v => '฿' + Math.round(v / 1000) + 'K', font: { size: 10 } } } }
+          }
+        });
 
-  // Product mix
-  const allProds=[...new Set(orders.map(o=>o.product||'อื่นๆ'))].sort();
-  const prodColors=[CLR.blue,CLR.green,CLR.amber,CLR.red,'#6655c8','#d4537e',CLR.teal,'#7a8c10','#c47020'];
-  const prodOrderCount={};
-  allProds.forEach(p=>{prodOrderCount[p]={};keys.forEach(k=>{prodOrderCount[p][k]=(sMap[k]||{productOrders:{}}).productOrders?.[p]||0;});});
-  const legEl=d('productMixLegend'); legEl.innerHTML='';
-  allProds.forEach((p,i)=>{legEl.innerHTML+=`<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)"><span class="ld" style="background:${prodColors[i%prodColors.length]}"></span>${p}</span>`;});
-  charts['productMixChart']=new Chart(d('productMixChart'),{type:'bar',data:{labels:keys,datasets:allProds.map((p,i)=>({label:p,data:keys.map(k=>(sMap[k]||{products:{}}).products[p]||0),backgroundColor:prodColors[i%prodColors.length]+'cc',borderWidth:0,stack:'products'}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const qty=ctx.parsed.y||0;if(!qty)return null;const p=ctx.dataset.label,mon=keys[ctx.dataIndex],ord=prodOrderCount[p]?.[mon]||0,avg=ord>0?Math.round(qty/ord):qty;return['📦 '+p,'🧴 '+qty.toLocaleString()+' ชิ้น จาก '+ord+' ออเดอร์','📊 เฉลี่ย '+avg+' ชิ้น/ออเดอร์'];},filter:item=>(item.parsed?.y||0)>0}}},scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{ticks:{font:{size:10}},title:{display:true,text:'จำนวนชิ้น',font:{size:10}}}}}});
-}
+        // Per ฿100
+        const per100 = d('wf-per100'); per100.innerHTML = '';
+        const rows100 = [
+          { label: 'Revenue', val: 100, pct: '100%', color: CLR.blue },
+          { label: '− ต้นทุนสินค้า (COGS)', val: R > 0 ? -(C / R * 100) : 0, pct: R > 0 ? pct(C / R * 100) : '—', color: CLR.red },
+          { label: 'Gross Profit', val: R > 0 ? G / R * 100 : 0, pct: R > 0 ? pct(G / R * 100) : '—', color: CLR.green },
+          { label: '− ค่าโฆษณา Meta', val: R > 0 ? -(A / R * 100) : 0, pct: R > 0 ? pct(A / R * 100) : '—', color: CLR.amber },
+          { label: 'Net Profit (เหลือ)', val: R > 0 ? N / R * 100 : 0, pct: R > 0 ? pct(N / R * 100) : '—', color: N >= 0 ? CLR.green : CLR.red },
+        ];
+        rows100.forEach(rw => {
+          const barW = Math.min(100, Math.abs(rw.val));
+          per100.innerHTML += `<div class="wf-row">
+      <div class="wf-row-label">${rw.label}</div>
+      <div class="wf-row-bar-wrap"><div class="wf-row-bar" style="width:${barW}%;background:${rw.color}"></div></div>
+      <div class="wf-row-val" style="color:${rw.color}">${rw.val >= 0 ? '฿' + Math.abs(rw.val).toFixed(1) : '−฿' + Math.abs(rw.val).toFixed(1)}</div>
+      <div class="wf-row-pct">${rw.pct}</div>
+    </div>`;
+        });
 
-/* ── Product ── */
-function renderProduct(orders){
-  const pMap={};
-  orders.forEach(o=>{
-    const p=o.product||'อื่นๆ';
-    if(!pMap[p])pMap[p]={rev:0,cogs:0,qty:0,orders:0};
-    pMap[p].rev+=o.revenue; pMap[p].cogs+=o.cogs; pMap[p].qty+=o.qty; pMap[p].orders+=1;
-  });
-  const rows=Object.entries(pMap).map(([name,p])=>{
-    const avg=p.qty>0?p.rev/p.qty:0;
-    const mPct=p.rev>0?(p.rev-p.cogs)/p.rev*100:0;
-    return{name,avg,mPct,...p};
-  }).sort((a,b)=>b.rev-a.rev);
+        const wm = d('wf-metrics'); wm.innerHTML = '';
+        [{ label: 'Revenue', val: fmtB(R), c: 'c-blue' }, { label: 'หัก COGS', val: '−' + fmtB(C), c: 'c-red' },
+        { label: 'Gross Profit', val: fmtB(G), sub: pct(R > 0 ? G / R * 100 : 0), c: 'c-green' },
+        { label: 'หัก Ad Spend', val: '−' + fmtB(A), c: 'c-red' },
+        { label: 'Net Profit', val: fmtB(N), sub: R > 0 ? pct(N / R * 100) : '', c: N >= 0 ? 'c-green' : 'c-red' }
+        ].forEach(c => {
+          wm.innerHTML += `<div class="mc"><div class="mc-label">${c.label}</div><div class="mc-val ${c.c}">${c.val}</div>${c.sub ? `<div class="mc-sub">${c.sub}</div>` : ''}</div>`;
+        });
+      }
 
-  const tbody=d('productBody'); tbody.innerHTML='';
-  if(!rows.length){tbody.innerHTML=`<tr><td colspan="7" class="no-data">ไม่มีข้อมูลในช่วงที่เลือก</td></tr>`;return;}
-  rows.forEach(r=>{
-    const sig=r.mPct>55?'<span class="badge badge-green">Push</span>':r.mPct>40?'<span class="badge badge-amber">OK</span>':'<span class="badge badge-red">ระวัง</span>';
-    const mc=r.mPct>50?'color:var(--green)':r.mPct>35?'color:var(--amber)':'color:var(--red)';
-    tbody.innerHTML+=`<tr><td><strong>${r.name}</strong></td><td style="text-align:right">${r.orders}</td><td style="text-align:right">${fmt(r.qty)}</td><td style="text-align:right">${fmtB(r.avg)}</td><td style="text-align:right;font-weight:600;${mc}">${r.mPct.toFixed(1)}%</td><td style="text-align:right">${fmtB(r.rev)}</td><td>${sig}</td></tr>`;
-  });
+      function renderTrend(s) {
+        destroyChart('trendChart'); destroyChart('marginChart'); destroyChart('dailyChart'); destroyChart('plMonthChart'); destroyChart('orderVolumeChart'); destroyChart('orderScatterChart'); destroyChart('productMixChart');
+        const { keys, sMap, aMap } = s.byMonth;
+        const mR = keys.map(k => Math.round((sMap[k] || { rev: 0, cogs: 0 }).rev));
+        const mCOGS = keys.map(k => Math.round((sMap[k] || { rev: 0, cogs: 0 }).cogs));
+        const mA = keys.map(k => Math.round((aMap[k] || { spend: 0 }).spend));
+        const mN = mR.map((r, i) => Math.round(r - mCOGS[i] - mA[i]));
+        const mNP = mR.map((r, i) => r > 0 ? +((mN[i] / r) * 100).toFixed(1) : 0);
 
-  destroyChart('productChart');
-  charts['productChart']=new Chart(d('productChart'),{type:'bar',data:{labels:rows.map(r=>r.name),datasets:[{data:rows.map(r=>+r.mPct.toFixed(1)),backgroundColor:rows.map(r=>r.mPct>55?CLR.green:r.mPct>40?CLR.amber:CLR.red),borderWidth:0,borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>v+'%',font:{size:10}},max:100},y:{ticks:{font:{size:11}},grid:{display:false}}}}});
-}
+        charts['trendChart'] = new Chart(d('trendChart'), {
+          type: 'line', data: {
+            labels: keys, datasets: [
+              { label: 'Revenue', data: mR, borderColor: CLR.blue, backgroundColor: CLR.blue + '15', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: CLR.blue },
+              { label: 'Net Profit', data: mN, borderColor: CLR.green, backgroundColor: CLR.green + '10', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: CLR.green, borderDash: [4, 3] },
+              { label: 'Ad Spend', data: mA, borderColor: CLR.amber, backgroundColor: 'transparent', tension: 0.3, pointRadius: 3, pointBackgroundColor: CLR.amber, borderDash: [2, 4] }
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
+              x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+              y: { ticks: { callback: v => '฿' + Math.round(v / 1000) + 'K', font: { size: 10 } } }
+            }
+          }
+        });
 
-/* ── Job Type ── */
-function renderJobtype(orders){
-  const JT_COLORS={'UV Print':CLR.blue,'Laser':CLR.green,'Sticker':CLR.amber,'ไม่ระบุ':'#888780'};
-  const map={};
-  orders.forEach(o=>{
-    const pt=o.printType||'ไม่ระบุ';
-    if(!map[pt])map[pt]={rev:0,orders:0,cogs:0};
-    map[pt].rev+=o.revenue; map[pt].orders+=1; map[pt].cogs+=o.cogs;
-  });
-  const types=Object.keys(map).sort((a,b)=>map[b].rev-map[a].rev);
-  const totalR=types.reduce((s,t)=>s+map[t].rev,0);
+        charts['marginChart'] = new Chart(d('marginChart'), {
+          type: 'bar', data: {
+            labels: keys, datasets: [{
+              label: 'Net Margin %', data: mNP,
+              backgroundColor: mNP.map(v => v > 30 ? CLR.green + 'bb' : v > 0 ? CLR.amber + 'bb' : CLR.red + 'bb'), borderWidth: 0, borderRadius: 3
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
+              x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+              y: { ticks: { callback: v => v + '%', font: { size: 10 } } }
+            }
+          }
+        });
 
-  const jm=d('jobtype-metrics'); jm.innerHTML='';
-  types.forEach(t=>{
-    const m=map[t],p=(totalR>0?m.rev/totalR*100:0).toFixed(1);
-    jm.innerHTML+=`<div class="mc"><div class="mc-label">${t}</div><div class="mc-val" style="color:${JT_COLORS[t]||'#888'}">${p}%</div><div class="mc-sub">${fmtB(m.rev)} · ${m.orders} ออเดอร์</div></div>`;
-  });
+        charts['plMonthChart'] = new Chart(d('plMonthChart'), {
+          type: 'bar',
+          data: {
+            labels: keys, datasets: [
+              { label: 'Net Profit', data: mN, backgroundColor: mN.map(v => v >= 0 ? CLR.green + 'cc' : CLR.red + 'cc'), borderWidth: 0, borderRadius: 4, order: 1 },
+              { label: 'Ad Spend', data: mA, backgroundColor: CLR.amber + '99', borderWidth: 0, borderRadius: 0, stack: 'cost', order: 2 },
+              { label: 'COGS', data: mCOGS, backgroundColor: CLR.red + '55', borderWidth: 0, borderRadius: 0, stack: 'cost', order: 2 },
+              {
+                label: 'Revenue', data: mR, type: 'line', borderColor: CLR.blue, backgroundColor: 'transparent',
+                pointRadius: 4, pointBackgroundColor: CLR.blue, borderWidth: 2, tension: 0.3, order: 0
+              }
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }, tooltip: {
+                callbacks: {
+                  label: ctx => ctx.dataset.label + ': ฿' + Math.abs(Math.round(ctx.parsed.y)).toLocaleString()
+                }
+              }
+            },
+            scales: {
+              x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+              y: { ticks: { callback: v => '฿' + Math.round(v / 1000) + 'K', font: { size: 10 } }, grid: { color: 'rgba(128,128,128,0.08)' } }
+            }
+          }
+        });
 
-  destroyChart('jobtypePieChart');
-  charts['jobtypePieChart']=new Chart(d('jobtypePieChart'),{type:'doughnut',data:{labels:types,datasets:[{data:types.map(t=>Math.round(map[t].rev)),backgroundColor:types.map(t=>JT_COLORS[t]||'#888'),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>[ctx.label+': '+fmtB(ctx.parsed),'สัดส่วน: '+(totalR>0?(ctx.parsed/totalR*100).toFixed(1):'0')+'%','ออเดอร์: '+map[ctx.label].orders+' ออเดอร์']}}}}});
-  const leg=d('jobtypeLegend'); leg.innerHTML='';
-  types.forEach(t=>{const m=map[t],p=(totalR>0?m.rev/totalR*100:0).toFixed(1);leg.innerHTML+=`<div style="display:flex;align-items:center;gap:8px"><span style="width:12px;height:12px;border-radius:3px;background:${JT_COLORS[t]||'#888'};flex-shrink:0"></span><div><div style="font-weight:500">${t} <span style="color:var(--text2);font-weight:400">(${p}%)</span></div><div style="font-size:11px;color:var(--text2)">${fmtB(m.rev)} · ${m.orders} ออเดอร์</div></div></div>`;});
+        // ── Order volume metrics ──
+        const totalOrders = s.sales.length;
+        const totalQty = s.sales.reduce((sum, r) => sum + r.qty, 0);
+        const avgOrderSize = totalOrders > 0 ? (totalQty / totalOrders).toFixed(1) : 0;
+        const avgRevPerOrder = totalOrders > 0 ? Math.round(s.totalRev / totalOrders) : 0;
+        const tom = d('trend-order-metrics'); tom.innerHTML = '';
+        [
+          { label: 'จำนวนออเดอร์รวม', val: totalOrders + ' ออเดอร์', c: 'c-blue' },
+          { label: 'จำนวนชิ้นที่ขายได้รวม', val: fmt(totalQty) + ' ชิ้น', c: 'c-green' },
+          { label: 'เฉลี่ยชิ้น/ออเดอร์', val: avgOrderSize + ' ชิ้น', c: '' },
+          { label: 'เฉลี่ย Revenue/ออเดอร์', val: fmtB(avgRevPerOrder), c: '' },
+        ].forEach(c => {
+          tom.innerHTML += `<div class="mc"><div class="mc-label">${c.label}</div><div class="mc-val ${c.c}">${c.val}</div></div>`;
+        });
 
-  const {keys,sMap}=aggregateByMonth(orders);
-  const ptMonthMap={};
-  orders.forEach(o=>{const k=getMonthKey(o.date);const pt=o.printType||'ไม่ระบุ';if(!ptMonthMap[k])ptMonthMap[k]={};ptMonthMap[k][pt]=(ptMonthMap[k][pt]||0)+o.revenue;});
-  const jmLeg=d('jobtypeMonthLegend'); jmLeg.innerHTML='';
-  types.forEach(t=>{jmLeg.innerHTML+=`<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)"><span class="ld" style="background:${JT_COLORS[t]||'#888'}"></span>${t}</span>`;});
-  destroyChart('jobtypeMonthChart');
-  charts['jobtypeMonthChart']=new Chart(d('jobtypeMonthChart'),{type:'bar',data:{labels:keys,datasets:types.map(t=>({label:t,data:keys.map(k=>(ptMonthMap[k]||{})[t]||0),backgroundColor:JT_COLORS[t]||'#888',borderWidth:0,stack:'jt'}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmtB(ctx.parsed.y)}}},scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{ticks:{callback:v=>'฿'+Math.round(v/1000)+'K',font:{size:10}}}}}});
+        // ── Order volume chart (orders + qty per month) ──
+        destroyChart('orderVolumeChart');
+        const mOrders = keys.map(k => (sMap[k] || { orders: 0 }).orders);
+        const mQty = keys.map(k => (sMap[k] || { qty: 0 }).qty);
+        const mAvgQtyPerOrder = keys.map((_, i) => mOrders[i] > 0 ? (mQty[i] / mOrders[i]).toFixed(1) : 0);
+        charts['orderVolumeChart'] = new Chart(d('orderVolumeChart'), {
+          type: 'bar',
+          data: {
+            labels: keys, datasets: [
+              { label: 'จำนวนออเดอร์', data: mOrders, backgroundColor: CLR.blue + '99', borderWidth: 0, borderRadius: 4, yAxisID: 'y' },
+              {
+                label: 'จำนวนชิ้น', data: mQty, type: 'line', borderColor: CLR.green, backgroundColor: 'transparent',
+                pointRadius: 5, pointBackgroundColor: CLR.green, borderWidth: 2, tension: 0.3, yAxisID: 'y1'
+              }
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  title: ctx => ctx[0].label,
+                  afterBody: ctx => {
+                    const i = ctx[0].dataIndex;
+                    return [
+                      '──────────────',
+                      '📦 ออเดอร์: ' + mOrders[i] + ' ออเดอร์',
+                      '🧴 ชิ้นรวม: ' + mQty[i].toLocaleString() + ' ชิ้น',
+                      '📊 เฉลี่ย: ' + mAvgQtyPerOrder[i] + ' ชิ้น/ออเดอร์',
+                    ];
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+              y: { ticks: { font: { size: 10 } }, title: { display: true, text: 'ออเดอร์', font: { size: 10 } } },
+              y1: { position: 'right', ticks: { font: { size: 10 } }, title: { display: true, text: 'ชิ้น', font: { size: 10 } }, grid: { display: false } }
+            }
+          }
+        });
 
-  const tbody=d('jobtypeBody'); tbody.innerHTML='';
-  types.forEach(t=>{const m=map[t],p=(totalR>0?m.rev/totalR*100:0).toFixed(1),gp=m.rev-m.cogs,gpP=m.rev>0?(gp/m.rev*100).toFixed(1):0,avg=m.orders>0?Math.round(m.rev/m.orders):0;tbody.innerHTML+=`<tr><td><span style="display:inline-flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;background:${JT_COLORS[t]||'#888'}"></span><strong>${t}</strong></span></td><td style="text-align:right">${m.orders}</td><td style="text-align:right">${fmtB(m.rev)}</td><td style="text-align:right;font-weight:600;color:${JT_COLORS[t]||'#888'}">${p}%</td><td style="text-align:right">${fmtB(avg)}</td><td style="text-align:right;color:var(--green)">${fmtB(gp)} <span style="font-size:11px;color:var(--text3)">(${gpP}%)</span></td></tr>`;});
-}
+        // ── Order scatter plot ──
+        destroyChart('orderScatterChart');
+        const scatterData = s.sales
+          .filter(r => r.qty > 0)
+          .map(r => {
+            const dt = new Date(r.date);
+            return {
+              x: dt.getTime(),
+              y: r.qty,
+              label: r.product,
+              date: r.date,
+              revenue: r.revenue
+            };
+          });
+        // color by product
+        const scatterProds = [...new Set(s.sales.map(r => r.product))];
+        const scatterColors = ['#2870c8', '#1a8c68', '#a06010', '#c43030', '#6655c8', '#d4537e', '#1d7d9e', '#7a8c10', '#c47020'];
+        const scatterDatasets = scatterProds.map((prod, i) => ({
+          label: prod,
+          data: scatterData.filter(p => p.label === prod),
+          backgroundColor: scatterColors[i % scatterColors.length] + 'bb',
+          pointRadius: 7,
+          pointHoverRadius: 9,
+        }));
+        charts['orderScatterChart'] = new Chart(d('orderScatterChart'), {
+          type: 'scatter',
+          data: { datasets: scatterDatasets },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: ctx => {
+                    const p = ctx.raw;
+                    return [
+                      '📦 ' + p.label,
+                      '📅 ' + p.date,
+                      '🧴 ' + p.y + ' ชิ้น',
+                      '💰 ฿' + p.revenue.toLocaleString(),
+                    ];
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                type: 'time',
+                time: { unit: 'month', displayFormats: { month: 'MMM yy' } },
+                ticks: { font: { size: 10 } }, grid: { display: false }
+              },
+              y: {
+                ticks: { font: { size: 10 } },
+                title: { display: true, text: 'จำนวนชิ้น', font: { size: 10 } }
+              }
+            }
+          }
+        });
 
-/* ── Orders ── */
-function renderOrders(){
-  const ch=d('channelFilter').value;
-  const so=d('sortOrder').value;
-  let rows=currentOrders.filter(o=>!ch||o.channel===ch);
-  const sf={'date-desc':(a,b)=>{const da=parseThaiDate(a.date),db=parseThaiDate(b.date);return db-da;},'rev-desc':(a,b)=>b.revenue-a.revenue,'margin-desc':(a,b)=>{const gm=r=>r.revenue>0?(r.revenue-r.cogs)/r.revenue:0;return gm(b)-gm(a);}};
-  rows=[...rows].sort(sf[so]||sf['date-desc']);
-  const tbody=d('ordersBody'); tbody.innerHTML='';
-  if(!rows.length){tbody.innerHTML=`<tr><td colspan="7" class="no-data">ไม่มีออเดอร์ในช่วงที่เลือก</td></tr>`;return;}
-  rows.slice(0,200).forEach(o=>{
-    const profit=o.revenue-o.cogs, mPct=o.revenue>0?profit/o.revenue*100:0;
-    const cBadge=o.channel==='Facebook'?'badge-blue':o.channel==='Line'?'badge-green':'badge-amber';
-    const secDone=/done$/i.test(o.section);
-    const sBadge=secDone?'badge-green':o.section?'badge-amber':'';
-    tbody.innerHTML+=`<tr><td>${o.date}</td><td><strong>${o.product||'—'}</strong></td><td style="text-align:right">${fmt(o.qty)}</td><td style="text-align:right">${fmtB(o.revenue)}</td><td><span class="badge ${cBadge}">${o.channel||'—'}</span></td><td><span style="font-size:11px;color:var(--text2)">${o.printType||'—'}</span></td><td><span class="badge ${sBadge}" style="font-size:10px;white-space:nowrap">${o.section}</span></td></tr>`;
-  });
-  if(rows.length>200) tbody.innerHTML+=`<tr><td colspan="7" style="text-align:center;padding:10px;font-size:11px;color:var(--text3)">แสดง 200 รายการแรก จาก ${rows.length} รายการทั้งหมด</td></tr>`;
+        // ── Product mix stacked bar ──
+        destroyChart('productMixChart');
+        // Collect all products across filtered months
+        const allProds = [...new Set(s.sales.map(r => r.product || 'อื่นๆ'))].sort();
+        const prodColors = ['#2870c8', '#1a8c68', '#a06010', '#c43030', '#6655c8', '#d4537e', '#1d7d9e', '#7a8c10', '#c47020', '#555eb8'];
+        // Build lookup: prodOrderCount[prod][monthKey] = order count
+        const prodOrderCount = {};
+        allProds.forEach(prod => {
+          prodOrderCount[prod] = {};
+          keys.forEach(k => {
+            prodOrderCount[prod][k] = (sMap[k] || { productOrders: {} }).productOrders?.[prod] || 0;
+          });
+        });
 
-  const sm=d('orders-summary'); sm.innerHTML='';
-  const tr=rows.reduce((s,o)=>s+o.revenue,0),tp=rows.reduce((s,o)=>s+o.revenue-o.cogs,0);
-  [{label:'ออเดอร์',val:rows.length+' รายการ'},{label:'ยอดขายรวม',val:fmtB(tr),c:'c-blue'},{label:'กำไรรวม',val:fmtB(tp),c:'c-green'},{label:'Margin เฉลี่ย',val:tr>0?pct(tp/tr*100):'—',c:'c-green'}].forEach(c=>{
-    sm.innerHTML+=`<div class="mc"><div class="mc-label">${c.label}</div><div class="mc-val ${c.c||''}">${c.val}</div></div>`;
-  });
-}
+        const prodDatasets = allProds.map((prod, i) => ({
+          label: prod,
+          data: keys.map(k => (sMap[k] || { products: {} }).products[prod] || 0),
+          backgroundColor: prodColors[i % prodColors.length] + 'cc',
+          borderWidth: 0,
+          stack: 'products'
+        }));
+        // Legend
+        const legEl = d('productMixLegend'); legEl.innerHTML = '';
+        allProds.forEach((prod, i) => {
+          legEl.innerHTML += `<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)">
+      <span class="ld" style="background:${prodColors[i % prodColors.length]}"></span>${prod}</span>`;
+        });
+        charts['productMixChart'] = new Chart(d('productMixChart'), {
+          type: 'bar',
+          data: { labels: keys, datasets: prodDatasets },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }, tooltip: {
+                callbacks: {
+                  label: ctx => {
+                    const qty = ctx.parsed.y || 0;
+                    if (qty === 0) return null;
+                    const prod = ctx.dataset.label;
+                    const month = keys[ctx.dataIndex];
+                    const orders = prodOrderCount[prod]?.[month] || 0;
+                    const avg = orders > 0 ? Math.round(qty / orders) : qty;
+                    return [
+                      '📦 ' + prod,
+                      '🧴 ' + qty.toLocaleString() + ' ชิ้น จาก ' + orders + ' ออเดอร์',
+                      '📊 เฉลี่ย ' + avg + ' ชิ้น/ออเดอร์',
+                    ];
+                  },
+                  filter: item => (item.parsed?.y || 0) > 0
+                }
+              }
+            },
+            scales: {
+              x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+              y: { ticks: { font: { size: 10 } }, title: { display: true, text: 'จำนวนชิ้น', font: { size: 10 } } }
+            }
+          }
+        });
 
-/* ── Tab switcher ── */
-function sw(name,btn){
-  currentTab=name;
-  ['verdict','waterfall','trend','product','jobtype','orders'].forEach(t=>{d('tab-'+t).style.display=t===name?'block':'none';});
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  if(btn)btn.classList.add('active');
-  if(ALL_ORDERS.length) render();
-}
+        const dailySorted = [...s.ads].sort((a, b) => a.date < b.date ? -1 : 1);
+        const dLabels = dailySorted.map(a => a.date.slice(5));
+        charts['dailyChart'] = new Chart(d('dailyChart'), {
+          type: 'bar', data: {
+            labels: dLabels, datasets: [
+              { label: 'Ad Spend', data: dailySorted.map(a => Math.round(a.spend)), backgroundColor: CLR.blue + '77', yAxisID: 'y' },
+              { label: 'Leads', data: dailySorted.map(a => a.leads), type: 'line', borderColor: CLR.green, backgroundColor: 'transparent', pointRadius: 0, yAxisID: 'y1', borderWidth: 1.5 }
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
+              x: { ticks: { autoSkip: true, maxRotation: 45, font: { size: 9 } }, grid: { display: false } },
+              y: { ticks: { callback: v => '฿' + v, font: { size: 10 } } },
+              y1: { position: 'right', ticks: { font: { size: 10 } }, grid: { display: false } }
+            }
+          }
+        });
+      }
 
-/* ── Init ── */
-(function(){
-  const today=new Date().toISOString().slice(0,10);
-  d('dateTo').value=today;
-  d('dateFrom').value=today.slice(0,4)+'-01-01';
-})();
-loadSheet();
-</script>
+      function buildPieData(salesArr, mode) {
+        const pMap = {};
+        salesArr.forEach(s => {
+          if (!s.product) return;
+          pMap[s.product] = (pMap[s.product] || 0) + (mode === 'qty' ? s.qty : s.revenue);
+        });
+        return Object.entries(pMap).sort((a, b) => b[1] - a[1]);
+      }
+
+      function drawProductPie(canvasId, legendId, entries, mode, colorMap) {
+        destroyChart(canvasId);
+        const total  = entries.reduce((s, e) => s + e[1], 0);
+        const labels = entries.map(e => e[0]);
+        const data   = entries.map(e => e[1]);
+        const colors = entries.map(e => colorMap[e[0]] || '#888780');
+        const isRev  = mode !== 'qty';
+
+        charts[canvasId] = new Chart(d(canvasId), {
+          type: 'doughnut',
+          data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 8 }] },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            cutout: '62%',
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: {
+                label: ctx => {
+                  const pct = total > 0 ? (ctx.parsed / total * 100).toFixed(1) : 0;
+                  const val = isRev ? '฿' + Math.round(ctx.parsed).toLocaleString() : Math.round(ctx.parsed).toLocaleString() + ' ชิ้น';
+                  return ` ${val} (${pct}%)`;
+                }
+              }}
+            }
+          }
+        });
+
+        const leg = d(legendId); leg.innerHTML = '';
+        entries.slice(0, 8).forEach((e) => {
+          const pct = total > 0 ? (e[1] / total * 100).toFixed(1) : 0;
+          const shortName = e[0].replace('แก้วเก็บความเย็น ', '').replace('Fumalo ', '');
+          const valStr = isRev ? '฿' + Math.round(e[1]).toLocaleString() : Math.round(e[1]).toLocaleString() + ' ชิ้น';
+          const col = colorMap[e[0]] || '#888780';
+          leg.innerHTML += `<div style="display:flex;align-items:center;gap:6px">
+            <span style="width:10px;height:10px;border-radius:2px;background:${col};flex-shrink:0"></span>
+            <span style="flex:1;font-size:11px;color:var(--text)">${shortName}</span>
+            <span style="font-size:11px;font-weight:600;color:var(--text2)">${pct}%</span>
+          </div>
+          <div style="font-size:10px;color:var(--text3);padding-left:16px;margin-top:-4px">${valStr}</div>`;
+        });
+        if (entries.length > 8) leg.innerHTML += `<div style="font-size:10px;color:var(--text3)">+ ${entries.length - 8} รายการอื่น</div>`;
+      }
+
+      function renderProduct(sales, allSales) {
+        // ── Build shared color map (by revenue rank, stable across both charts) ──
+        const PIE_COLORS = ['#2870c8','#1a8c68','#a06010','#c43030','#6655c8','#d4537e','#1d7d9e','#7a8c10','#c47020','#555eb8','#888780','#2db87e'];
+        const allProds = [...new Set(sales.map(s => s.product).filter(Boolean))];
+        // Sort by revenue to assign color by revenue rank — consistent
+        const revMap = {};
+        sales.forEach(s => { if (s.product) revMap[s.product] = (revMap[s.product] || 0) + s.revenue; });
+        const sortedProds = allProds.sort((a, b) => (revMap[b] || 0) - (revMap[a] || 0));
+        const colorMap = {};
+        sortedProds.forEach((p, i) => { colorMap[p] = PIE_COLORS[i % PIE_COLORS.length]; });
+
+        drawProductPie('productPieRev', 'productPieLegendRev', buildPieData(sales, 'revenue'), 'revenue', colorMap);
+        drawProductPie('productPieQty', 'productPieLegendQty', buildPieData(sales, 'qty'),     'qty',     colorMap);
+
+
+        const pMap = {};
+        sales.forEach(s => {
+          if (!pMap[s.product]) pMap[s.product] = { cost: s.costPer, totalQty: 0, totalRev: 0 };
+          pMap[s.product].totalQty += s.qty; pMap[s.product].totalRev += s.revenue;
+        });
+        const rows = Object.entries(pMap).map(([name, p]) => {
+          const avg = p.totalQty > 0 ? p.totalRev / p.totalQty : 0;
+          const marginPct = avg > 0 ? (avg - p.cost) / avg * 100 : 0;
+          return { name, cost: p.cost, avg, marginPerUnit: avg - p.cost, marginPct, totalRev: p.totalRev, totalQty: p.totalQty };
+        }).sort((a, b) => b.totalRev - a.totalRev);
+
+        const tbody = d('productBody'); tbody.innerHTML = '';
+        if (!rows.length) { tbody.innerHTML = `<tr><td colspan="8" class="no-data">ไม่มีข้อมูลในช่วงที่เลือก</td></tr>`; }
+        rows.forEach(r => {
+          const sig = r.marginPct > 55 ? '<span class="badge badge-green">Push</span>' : r.marginPct > 40 ? '<span class="badge badge-amber">OK</span>' : '<span class="badge badge-red">ระวัง</span>';
+          const mc = r.marginPct > 50 ? 'style="color:var(--green)"' : r.marginPct > 35 ? 'style="color:var(--amber)"' : 'style="color:var(--red)"';
+          tbody.innerHTML += `<tr>
+      <td><strong>${r.name}</strong></td>
+      <td style="text-align:right">฿${r.cost}</td>
+      <td style="text-align:right">฿${Math.round(r.avg).toLocaleString()}</td>
+      <td style="text-align:right;color:var(--green)">+฿${Math.round(r.marginPerUnit).toLocaleString()}</td>
+      <td style="text-align:right;font-weight:600" ${mc}>${r.marginPct.toFixed(1)}%</td>
+      <td style="text-align:right">${fmt(r.totalQty)}</td>
+      <td style="text-align:right">฿${r.totalRev.toLocaleString()}</td>
+      <td>${sig}</td>
+    </tr>`;
+        });
+
+        destroyChart('productChart');
+        if (rows.length) {
+          charts['productChart'] = new Chart(d('productChart'), {
+            type: 'bar', data: {
+              labels: rows.map(r => r.name), datasets: [{
+                label: 'Margin %',
+                data: rows.map(r => +r.marginPct.toFixed(1)),
+                backgroundColor: rows.map(r => r.marginPct > 55 ? CLR.green : r.marginPct > 40 ? CLR.amber : CLR.red),
+                borderWidth: 0, borderRadius: 4
+              }]
+            },
+            options: {
+              indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
+                x: { ticks: { callback: v => v + '%', font: { size: 10 } }, max: 100 },
+                y: { ticks: { font: { size: 11 } }, grid: { display: false } }
+              }
+            }
+          });
+        }
+
+        // Advice
+        const pushList = rows.filter(r => r.marginPct > 55).map(r => r.name).join(', ');
+        const warnList = rows.filter(r => r.marginPct <= 40).map(r => r.name).join(', ');
+        d('product-advice-body').innerHTML =
+          (pushList ? `<strong>Push ต่อ:</strong> ${pushList} — margin สูง เหมาะโฆษณา<br>` : '')
+          + (warnList ? `<strong>ระวัง:</strong> ${warnList} — margin ต่ำ ควรเน้น B2B bulk หรือทบทวนราคา` : '');
+      }
+
+      let currentSales = [];
+      function renderOrders() {
+        const ch = d('channelFilter').value;
+        const so = d('sortOrder').value;
+        let rows = currentSales.filter(s => !ch || s.channel === ch);
+        const sortFn = {
+          'date-desc': (a, b) => b.date < a.date ? -1 : 1,
+          'rev-desc': (a, b) => b.revenue - a.revenue,
+          'profit-desc': (a, b) => (b.revenue - b.qty * b.costPer) - (a.revenue - a.qty * a.costPer),
+          'margin-desc': (a, b) => { const gm = (r) => r.revenue > 0 ? (r.revenue - r.qty * r.costPer) / r.revenue : 0; return gm(b) - gm(a); },
+        }[so] || ((a, b) => b.date < a.date ? -1 : 1);
+        rows = [...rows].sort(sortFn);
+
+        const tbody = d('ordersBody'); tbody.innerHTML = '';
+        if (!rows.length) { tbody.innerHTML = `<tr><td colspan="8" class="no-data">ไม่มีออเดอร์ในช่วงที่เลือก</td></tr>`; return; }
+        rows.forEach(r => {
+          const profit = r.revenue - r.qty * r.costPer;
+          const marginPct = r.revenue > 0 ? profit / r.revenue * 100 : 0;
+          const cBadge = r.channel === 'Facebook' ? 'badge-blue' : r.channel === 'Line' ? 'badge-green' : 'badge-amber';
+          const pColor = profit > 0 ? 'color:var(--green)' : 'color:var(--red)';
+          const secDone = isDone(r);
+          const secInProgress = ['รอส่ง', 'ผลิตได้', 'กำลังผลิต', 'ออเดอร์ใหม่ รอสรุปแบบ'].includes(r.section);
+          const secBadge = secDone ? 'badge-green' : secInProgress ? 'badge-amber' : isValidOrder(r) ? '' : 'badge-red';
+          tbody.innerHTML += `<tr>
+      <td>${r.date}</td>
+      <td><strong>${r.product}</strong></td>
+      <td style="text-align:right">${fmt(r.qty)}</td>
+      <td style="text-align:right">${fmtB(r.revenue)}</td>
+      <td><span class="badge ${cBadge}">${r.channel}</span></td>
+      <td>${r.section ? `<span class="badge ${secBadge}" style="white-space:nowrap">${r.section}</span>` : ''}</td>
+      <td style="text-align:right;color:var(--text2)">${fmtB(r.qty * r.costPer)}</td>
+      <td style="text-align:right;${pColor}">${fmtB(profit)}</td>
+      <td style="text-align:right;${pColor}">${marginPct.toFixed(1)}%</td>
+    </tr>`;
+        });
+
+        // Summary
+        const sm = d('orders-summary'); sm.innerHTML = '';
+        const totalRev = rows.reduce((s, r) => s + r.revenue, 0);
+        const totalProfit = rows.reduce((s, r) => s + r.revenue - r.qty * r.costPer, 0);
+        [
+          { label: 'ออเดอร์ที่แสดง', val: rows.length + ' รายการ' },
+          { label: 'ยอดขายรวม', val: fmtB(totalRev), c: 'c-blue' },
+          { label: 'กำไรรวม', val: fmtB(totalProfit), c: 'c-green' },
+          { label: 'Margin เฉลี่ย', val: totalRev > 0 ? pct(totalProfit / totalRev * 100) : '—', c: 'c-green' },
+        ].forEach(c => {
+          sm.innerHTML += `<div class="mc"><div class="mc-label">${c.label}</div><div class="mc-val ${c.c || ''}">${c.val}</div></div>`;
+        });
+      }
+
+      /* ════════════════════════════════════════════
+         STATE
+      ════════════════════════════════════════════ */
+      let currentTab = 'verdict';
+      let currentStats = null;
+
+      function getTrendStats() {
+        const today = new Date();
+        const tStr = today.toISOString().slice(0, 10);
+        const fDate = new Date(today.getFullYear(), today.getMonth() - 5, 1);
+        const fStr = fDate.toISOString().slice(0, 10);
+        return computeStats(fStr, tStr);
+      }
+
+      function render() {
+        const from = d('dateFrom').value;
+        const to = d('dateTo').value;
+        currentStats = computeStats(from, to);
+        const s = currentStats;
+        currentSales = s.sales;
+
+        d('filterSummary').textContent = `${s.dayCount} วัน · ${s.salesCount} ออเดอร์ · ${s.ads.length} วันที่มีข้อมูลโฆษณา`;
+
+        if (currentTab === 'verdict') renderVerdict(s);
+        else if (currentTab === 'unit') renderUnit(s);
+        else if (currentTab === 'waterfall') renderWaterfall(s);
+        else if (currentTab === 'trend') renderTrend(getTrendStats());
+        else if (currentTab === 'product') renderProduct(s.sales, ALL_SALES);
+        else if (currentTab === 'orders') { renderOrders(); }
+        else if (currentTab === 'jobtype') renderJobtype(s.sales);
+      }
+
+      function onFilterChange() {
+        document.querySelectorAll('.qb').forEach(b => b.classList.remove('active'));
+        if (d('monthPicker')) d('monthPicker').value = '';
+        render();
+      }
+
+      function setQuick(q, btn) {
+        let f, t;
+        const today = new Date().toISOString().slice(0, 10);
+        if (q === 'all') { f = '2025-09-01'; t = today; }
+        else if (q === 'q1_26') { f = '2026-01-01'; t = '2026-03-31'; }
+        else if (q === 'mar_apr') { f = '2026-03-01'; t = '2026-04-30'; }
+        else if (q === 'jan_feb') { f = '2026-01-01'; t = '2026-02-28'; }
+        else if (q === 'q4_25') { f = '2025-10-01'; t = '2025-12-31'; }
+        else if (q === 'last30') { const dt = new Date(); dt.setDate(dt.getDate() - 30); f = dt.toISOString().slice(0, 10); t = today; }
+        d('dateFrom').value = f; d('dateTo').value = t;
+        document.querySelectorAll('.qb').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        if (d('monthPicker')) d('monthPicker').value = '';
+        render();
+      }
+
+      function onMonthSelect(val) {
+        if (!val) return;
+        const [year, month] = val.split('-');
+        const f = `${year}-${month}-01`;
+        const lastDay = new Date(year, month, 0).getDate();
+        const t = `${year}-${month}-${lastDay}`;
+        d('dateFrom').value = f;
+        d('dateTo').value = t;
+        document.querySelectorAll('.qb').forEach(b => b.classList.remove('active'));
+        render();
+      }
+
+      function renderJobtype(sales) {
+        // Group raw printType → 2 categories
+        function jobGroup(pt) {
+          if (!pt || pt === 'ไม่ระบุ') return 'ไม่ระบุ';
+          const u = pt.trim();
+          if (u === 'Laser') return 'Laser';
+          if (['UV Print', 'Only White', 'Only Color', 'Both'].includes(u)) return 'UV Print';
+          return u; // Sticker หรืออื่นๆ คงชื่อเดิม
+        }
+        const JT_COLORS = {
+          'UV Print': '#2870c8',
+          'Laser': '#1a8c68',
+          'Sticker': '#a06010',
+          'ไม่ระบุ': '#888780',
+        };
+        // Aggregate by grouped printType
+        const map = {};
+        sales.forEach(s => {
+          const pt = jobGroup(s.printType);
+          if (!map[pt]) map[pt] = { rev: 0, orders: 0, cogs: 0 };
+          map[pt].rev += s.revenue;
+          map[pt].orders += 1;
+          map[pt].cogs += s.qty * s.costPer;
+        });
+        const types = Object.keys(map).sort((a, b) => map[b].rev - map[a].rev);
+        const totalR = types.reduce((s, t) => s + map[t].rev, 0);
+
+        // Metrics
+        const jm = d('jobtype-metrics'); jm.innerHTML = '';
+        types.slice(0, 4).forEach(t => {
+          const m = map[t];
+          const pct = totalR > 0 ? (m.rev / totalR * 100).toFixed(1) : '0';
+          jm.innerHTML += `<div class="mc">
+      <div class="mc-label">${t}</div>
+      <div class="mc-val" style="color:${JT_COLORS[t] || '#888'}">${pct}%</div>
+      <div class="mc-sub">${fmtB(m.rev)} · ${m.orders} ออเดอร์</div>
+    </div>`;
+        });
+
+        // Pie chart
+        destroyChart('jobtypePieChart');
+        charts['jobtypePieChart'] = new Chart(d('jobtypePieChart'), {
+          type: 'doughnut',
+          data: {
+            labels: types, datasets: [{
+              data: types.map(t => Math.round(map[t].rev)),
+              backgroundColor: types.map(t => JT_COLORS[t] || '#888'),
+              borderWidth: 2,
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false, cutout: '60%',
+            plugins: {
+              legend: { display: false }, tooltip: {
+                callbacks: {
+                  label: ctx => [
+                    ctx.label + ': ' + fmtB(ctx.parsed),
+                    'สัดส่วน: ' + (totalR > 0 ? (ctx.parsed / totalR * 100).toFixed(1) : '0') + '%',
+                    'ออเดอร์: ' + map[ctx.label].orders + ' ออเดอร์',
+                  ]
+                }
+              }
+            }
+          }
+        });
+        // Legend
+        const leg = d('jobtypeLegend'); leg.innerHTML = '';
+        types.forEach(t => {
+          const m = map[t];
+          const pct = totalR > 0 ? (m.rev / totalR * 100).toFixed(1) : '0';
+          leg.innerHTML += `<div style="display:flex;align-items:center;gap:8px">
+      <span style="width:12px;height:12px;border-radius:3px;background:${JT_COLORS[t] || '#888'};flex-shrink:0"></span>
+      <div>
+        <div style="font-weight:500">${t} <span style="color:var(--text2);font-weight:400">(${pct}%)</span></div>
+        <div style="font-size:11px;color:var(--text2)">${fmtB(m.rev)} · ${m.orders} ออเดอร์</div>
+      </div>
+    </div>`;
+        });
+
+        // Monthly stacked bar
+        destroyChart('jobtypeMonthChart');
+        const { keys, sMap } = currentStats.byMonth;
+        // build printType per month
+        const ptMonthMap = {};
+        sales.forEach(s => {
+          const k = getMonthKey(s.date);
+          const pt = jobGroup(s.printType);
+          if (!ptMonthMap[k]) ptMonthMap[k] = {};
+          ptMonthMap[k][pt] = (ptMonthMap[k][pt] || 0) + s.revenue;
+        });
+        const jmLeg = d('jobtypeMonthLegend'); jmLeg.innerHTML = '';
+        types.forEach(t => {
+          jmLeg.innerHTML += `<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)">
+      <span class="ld" style="background:${JT_COLORS[t] || '#888'}"></span>${t}</span>`;
+        });
+        charts['jobtypeMonthChart'] = new Chart(d('jobtypeMonthChart'), {
+          type: 'bar',
+          data: {
+            labels: keys, datasets: types.map(t => ({
+              label: t,
+              data: keys.map(k => (ptMonthMap[k] || {})[t] || 0),
+              backgroundColor: JT_COLORS[t] || '#888',
+              borderWidth: 0, stack: 'jt'
+            }))
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }, tooltip: {
+                callbacks: {
+                  label: ctx => ctx.dataset.label + ': ' + fmtB(ctx.parsed.y)
+                }
+              }
+            },
+            scales: {
+              x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+              y: { ticks: { callback: v => '฿' + Math.round(v / 1000) + 'K', font: { size: 10 } } }
+            }
+          }
+        });
+
+        // Table
+        const tbody = d('jobtypeBody'); tbody.innerHTML = '';
+        types.forEach(t => {
+          const m = map[t];
+          const pct = totalR > 0 ? (m.rev / totalR * 100).toFixed(1) : '0';
+          const gp = m.rev - m.cogs;
+          const gpPct = m.rev > 0 ? (gp / m.rev * 100).toFixed(1) : '0';
+          const avg = m.orders > 0 ? Math.round(m.rev / m.orders) : 0;
+          tbody.innerHTML += `<tr>
+      <td><span style="display:inline-flex;align-items:center;gap:6px">
+        <span style="width:10px;height:10px;border-radius:2px;background:${JT_COLORS[t] || '#888'}"></span>
+        <strong>${t}</strong></span></td>
+      <td style="text-align:right">${m.orders}</td>
+      <td style="text-align:right">${fmtB(m.rev)}</td>
+      <td style="text-align:right;font-weight:600;color:${JT_COLORS[t] || '#888'}">${pct}%</td>
+      <td style="text-align:right">${fmtB(avg)}</td>
+      <td style="text-align:right;color:var(--text2)">${fmtB(m.cogs)}</td>
+      <td style="text-align:right;color:var(--green)">${fmtB(gp)} <span style="font-size:11px;color:var(--text3)">(${gpPct}%)</span></td>
+    </tr>`;
+        });
+      }
+
+      function sw(name, btn) {
+        currentTab = name;
+        ['verdict', 'unit', 'waterfall', 'trend', 'product', 'orders', 'jobtype'].forEach(t => {
+          d('tab-' + t).style.display = t === name ? 'block' : 'none';
+        });
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        if (currentStats) {
+          const s = currentStats;
+          if (name === 'unit') renderUnit(s);
+          else if (name === 'waterfall') renderWaterfall(s);
+          else if (name === 'trend') renderTrend(getTrendStats());
+          else if (name === 'product') renderProduct(s.sales, ALL_SALES);
+          else if (name === 'orders') { renderOrders(); }
+          else if (name === 'jobtype') renderJobtype(s.sales);
+          else renderVerdict(s);
+        }
+      }
+
+      // Init — set dateTo to today dynamically
+      (function () {
+        const today = new Date().toISOString().slice(0, 10);
+        document.getElementById('dateTo').value = today;
+        loadData(); // Start initial load
+
+        // Set auto-refresh every 10 minutes (600,000 ms)
+        setInterval(() => {
+          console.log('--- Automatic Refresh Triggered ---');
+          loadData();
+        }, 10 * 60 * 1000);
+      })();
+    </script>
+    <div id="debug-panel"
+      style="margin-top: 50px; padding: 20px; border-top: 1px dashed #ccc; font-family: monospace; font-size: 11px; color: #666;">
+      <strong>Dashboard Debugger (Technical Info):</strong>
+      <div id="debug-log"></div>
+    </div>
 </body>
+
 </html>
